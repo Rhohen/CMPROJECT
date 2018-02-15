@@ -211,6 +211,22 @@ public class PtGen {
 			nbVarAReserver = 0;
 			po.constGen();
 			break;
+		case 4: //valeur d'un nb entier positif
+			tCour = ENT;
+			vCour = UtilLex.valNb;
+			break;
+		case 5: //valeur d'un nb entier negatif
+			tCour = ENT;
+			vCour = - UtilLex.valNb;
+			break;
+		case 6: //valeur d'un bool true
+			tCour = BOOL;
+			vCour = VRAI;
+			break;
+		case 7: //ajout d'un bool false
+			tCour = BOOL;
+			vCour = FAUX;
+			break;
 		default:
 			System.out
 					.println("Point de generation non prevu dans votre liste");
