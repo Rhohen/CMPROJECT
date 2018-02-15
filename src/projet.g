@@ -67,11 +67,11 @@ specif  : ident  ( 'fixe' '(' type  ( ',' type  )* ')' )?
 consts  : 'const' ( ident  '=' valeur  ptvg {PtGen.pt(1);} )+ 
   ;
   
-vars  : 'var' ( type ident {PtGen.pt(2);} ( ','  ident {PtGen.pt(2);} )* ptvg {PtGen.pt(3);} )+
+vars  : 'var' ( type  ident {PtGen.pt(2);} ( ','  ident {PtGen.pt(2);} )* ptvg {PtGen.pt(3);} )+
   ;
   
-type  : 'ent'  
-  |     'bool' 
+type  : 'ent' {PtGen.pt(8);} 
+  |     'bool' {PtGen.pt(9);}
   ;
   
 decprocs: (decproc ptvg)+

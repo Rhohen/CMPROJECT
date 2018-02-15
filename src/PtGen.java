@@ -107,8 +107,7 @@ public class PtGen {
     private static int tCour; // type de l'expression compilee
     private static int vCour; // valeur de l'expression compilee le cas echeant
   
-    private static int varGlbIt; //iterateur pour remplir tabSymb avec les var globales
-    private static int nbVarAReserver; //nombre de var à réserver lors d'une déclaration
+    private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales
     
     // Dï¿½finition de la table des symboles
     //
@@ -201,14 +200,13 @@ public class PtGen {
 			afftabSymb();
 			break;
 		case 2: //déclaration d'une variable
-			placeIdent(UtilLex.numId, VARGLOBALE, tCour, varGlbIt);
-			nbVarAReserver++;
+			placeIdent(UtilLex.numId, VARGLOBALE, tCour, nbVarGlb);
+			nbVarGlb++;
 			afftabSymb();
 			break;
 		case 3: //reservation d'une variable
 			po.produire(RESERVER);
-			po.produire(nbVarAReserver);
-			nbVarAReserver = 0;
+			po.produire(nbVarGlb);
 			po.constGen();
 			break;
 		case 4: //valeur d'un nb entier positif
@@ -226,6 +224,12 @@ public class PtGen {
 		case 7: //ajout d'un bool false
 			tCour = BOOL;
 			vCour = FAUX;
+			break;
+		case 8: //gestion du type ent
+			tCour = ENT;
+			break;
+		case 9: //gestion du type bool
+			tCour = BOOL;
 			break;
 		default:
 			System.out
