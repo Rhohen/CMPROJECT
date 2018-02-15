@@ -18,7 +18,7 @@
  *     String UtilLex.repId(int nId) delivre l'ident de codage nId               *
  *     void afftabSymb()  affiche la table des symboles                          *
  *********************************************************************************/
-package project;
+
 
 import java.io.*;
 

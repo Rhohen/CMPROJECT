@@ -10,7 +10,7 @@
  *			 Lecture, UtilLex, Ecriture, etc. (dans libclass fourni)								  *
  * 			 ANTLRxxx (dans le jar fourni dans le r�pertoire antlr)					                  *
  *****************************************************************************************************/
-package project;
+
 
 import java.io.*;
 import org.antlr.runtime.ANTLRFileStream;
