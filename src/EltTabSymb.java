@@ -1,4 +1,4 @@
-package project;
+
 
 // classe de definition d'un element d'une table des symboles
 // 4 champs pour chaque identificateur
