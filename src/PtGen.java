@@ -102,12 +102,14 @@ public class PtGen {
      
     // autres variables fournies
     // -------------------------
-    public static String trinome="XxxYyyZzz"; // MERCI de renseigner ici un nom pour le trinome, constitue de exclusivement de lettres
+    public static String trinome="CroqGiraultJouin"; // MERCI de renseigner ici un nom pour le trinome, constitue de exclusivement de lettres
     
     private static int tCour; // type de l'expression compilee
     private static int vCour; // valeur de l'expression compilee le cas echeant
   
-   
+    private static int varGlbIt; //iterateur pour remplir tabSymb avec les var globales
+    private static int nbVarAReserver; //nombre de var à réserver lors d'une déclaration
+    
     // Dï¿½finition de la table des symboles
     //
     private static EltTabSymb[] tabSymb = new EltTabSymb[MAXSYMB + 1];
@@ -194,7 +196,21 @@ public class PtGen {
 			break;
 
 		// A COMPLETER
-		
+		case 1: //ajout d'une constante
+			placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
+			afftabSymb();
+			break;
+		case 2: //déclaration d'une variable
+			placeIdent(UtilLex.numId, VARGLOBALE, tCour, varGlbIt);
+			nbVarAReserver++;
+			afftabSymb();
+			break;
+		case 3: //reservation d'une variable
+			po.produire(RESERVER);
+			po.produire(nbVarAReserver);
+			nbVarAReserver = 0;
+			po.constGen();
+			break;
 		default:
 			System.out
 					.println("Point de generation non prevu dans votre liste");
