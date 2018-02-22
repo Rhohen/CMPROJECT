@@ -104,7 +104,7 @@ instructions
   ;
   
 instruction
-  : inssi
+  : inssi 
   | inscond
   | boucle
   | lecture
@@ -128,7 +128,7 @@ boucle  : 'ttq'  expression 'faire' instructions 'fait'
 lecture: 'lire' '(' ident  ( ',' ident  )* ')' 
   ;
   
-ecriture: 'ecrire' '(' expression  ( ',' expression  )* ')'
+ecriture: 'ecrire' '(' expression  ( ',' expression  )* ')' {PtGen.pt(50);}
    ;
   
 affouappel

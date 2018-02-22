@@ -188,9 +188,6 @@ public class PtGen {
 	// code des points de generation A COMPLETER
 	// -----------------------------------------
 	public static void pt(int numGen) {
-		//	Uniquement pour simplifier le debuggage 
-		System.out.println("numGen: " + numGen + "\n");
-
 		switch (numGen) {
 		case 0:
 			initialisations();
@@ -309,8 +306,26 @@ public class PtGen {
 					System.out.println("Catégorie de l'ident non répertoriée.");
 					break;
 			}
+			break;
+			
+			/****************_ CONDITIONS _****************/
+		case 50: 
+			switch (tCour) {
+			case ENT:
+				po.produire(ECRENT);
+				break;
+			case BOOL:
+				po.produire(ECRBOOL);
+				break;
+			default :
+				System.out.println("Type non identifié");
+				break;
+			}
+			break;
 		case 255:
+			po.produire(ARRET);
 			po.constGen();
+			po.constObj();
 			afftabSymb();
 			break;
 		default:

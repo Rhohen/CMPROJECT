@@ -1,0 +1,15 @@
+FICHIER a.gen : 
+
+   1  reserver        1
+   3  empiler         5
+   5  contenug        0
+   7  ecrent    
+   8  empiler         5
+  10  empiler        10
+  12  add       
+  13  ecrent    
+  14  empiler         1
+  16  empiler         0
+  18  et        
+  19  ecrbool   
+  20  arret     
