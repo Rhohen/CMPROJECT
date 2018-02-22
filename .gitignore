@@ -22,5 +22,5 @@
 hs_err_pid*
 
 g2java.bat
-projetLexer.java
+src/projetLexer.java
 projetParser.java
