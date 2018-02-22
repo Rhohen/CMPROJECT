@@ -197,17 +197,14 @@ public class PtGen {
 			break;
 		case 1: //ajout d'une constante
 			placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
-			afftabSymb();
 			break;
 		case 2: //déclaration d'une variable
 			placeIdent(UtilLex.numId, VARGLOBALE, tCour, nbVarGlb);
 			nbVarGlb++;
-			afftabSymb();
 			break;
 		case 3: //reservation d'une variable
 			po.produire(RESERVER);
 			po.produire(nbVarGlb);
-			po.constGen();
 			break;
 		case 4: //valeur d'un nb entier positif
 			tCour = ENT;
@@ -290,7 +287,10 @@ public class PtGen {
 			break;
 		case 35: // Gestion de l'identifiant
 			int id = presentIdent(1);
-			if (id == 0) System.out.println("L'identifiant " + UtilLex.numId + " n'existe pas.");
+			if (id == 0) {
+				System.out.println("L'identifiant " + UtilLex.numId + " n'existe pas.");
+				break;
+			}
 
 			tCour = tabSymb[id].type;
 			
@@ -309,6 +309,9 @@ public class PtGen {
 					System.out.println("Catégorie de l'ident non répertoriée.");
 					break;
 			}
+		case 255:
+			po.constGen();
+			afftabSymb();
 			break;
 		default:
 			System.out.println("Point de generation non prevu dans votre liste");
