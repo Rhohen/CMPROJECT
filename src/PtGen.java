@@ -1,6 +1,10 @@
 /*********************************************************************************
  * VARIABLES ET METHODES FOURNIES PAR LA CLASSE UtilLex (cf libclass)            *
+<<<<<<< HEAD
  *       complement Ã  l'ANALYSEUR LEXICAL produit par ANTLR                      *
+=======
+ *       complement ÃƒÂ  l'ANALYSEUR LEXICAL produit par ANTLR                      *
+>>>>>>> 58def3bff02d4c2b7e6662a390fbad37c3af6638
  *                                                                               *
  *                                                                               *
  *   nom du programme compile, sans suffixe : String UtilLex.nomSource           *
@@ -50,7 +54,7 @@ public class PtGen {
     // types permis :
 	ENT=1,BOOL=2,NEUTRE=3,
 
-	// catï¿½gories possibles des identificateurs :
+	// categories possibles des identificateurs :
 	CONSTANTE=1,VARGLOBALE=2,VARLOCALE=3,PARAMFIXE=4,PARAMMOD=5,PROC=6,
 	DEF=7,REF=8,PRIVEE=9,
 
@@ -109,8 +113,7 @@ public class PtGen {
   
     private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales
     
-    // Dï¿½finition de la table des symboles
-    //
+    // Definition de la table des symboles
     private static EltTabSymb[] tabSymb = new EltTabSymb[MAXSYMB + 1];
     
     // it = indice de remplissage de tabSymb
@@ -153,7 +156,7 @@ public class PtGen {
 			} else
 				Ecriture.ecrireInt(i, 6);
 			if (tabSymb[i] == null)
-				System.out.println(" rï¿½fï¿½rence NULL");
+				System.out.println(" reference NULL");
 			else
 				System.out.println(" " + tabSymb[i]);
 		}
@@ -198,7 +201,7 @@ public class PtGen {
 		case 1: //ajout d'une constante
 			placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
 			break;
-		case 2: //déclaration d'une variable
+		case 2: //declaration d'une variable
 			placeIdent(UtilLex.numId, VARGLOBALE, tCour, nbVarGlb);
 			nbVarGlb++;
 			break;
@@ -230,58 +233,58 @@ public class PtGen {
 			break;
 			
 		/****************_ EXPRESSIONS _****************/	
-		case 19: // Vérifie que l'expression attendue est booleenne 
+		case 19: // Verifie que l'expression attendue est booleenne 
 			verifBool();
 			break;
-		case 20: // Vérifie que l'expression attendue est entière
+		case 20: // Verifie que l'expression attendue est entiere
 			verifEnt();
 			break;
-		case 21: // Produit l'opération OU
+		case 21: // Produit l'operation OU
 			po.produire(OU);
 			break;
-		case 22: // Produit l'opération ET
+		case 22: // Produit l'operation ET
 			po.produire(ET);
 			break;
-		case 23: // Produit l'opération NON
+		case 23: // Produit l'operation NON
 			po.produire(NON);
 			break;
-		case 24: // Produit l'opération =
+		case 24: // Produit l'operation =
 			po.produire(EG);
 			tCour = BOOL;
 			break;
-		case 25: // Produit l'opération <>
+		case 25: // Produit l'operation <>
 			po.produire(DIFF);
 			tCour = BOOL;
 			break;
-		case 26: // Produit l'opération >
+		case 26: // Produit l'operation >
 			po.produire(SUP);
 			tCour = BOOL;
 			break;
-		case 27: // Produit l'opération >=
+		case 27: // Produit l'operation >=
 			po.produire(SUPEG);
 			tCour = BOOL;
 			break;
-		case 28: // Produit l'opération <
+		case 28: // Produit l'operation <
 			po.produire(INF);
 			tCour = BOOL;
 			break;
-		case 29: // Produit l'opération <=
+		case 29: // Produit l'operation <=
 			po.produire(INFEG);
 			tCour = BOOL;
 			break;
-		case 30: // Produit l'opération +
+		case 30: // Produit l'operation +
 			po.produire(ADD);
 			break;
-		case 31: // Produit l'opération -
+		case 31: // Produit l'operation -
 			po.produire(SOUS);
 			break;
-		case 32: // Produit l'opération *
+		case 32: // Produit l'operation *
 			po.produire(MUL);
 			break;
-		case 33: // Produit l'opération /
+		case 33: // Produit l'operation /
 			po.produire(DIV);
 			break;
-		case 34: // Empile une valeur entière
+		case 34: // Empile une valeur entiere
 			po.produire(EMPILER);
 			po.produire(vCour);
 			break;
@@ -303,7 +306,7 @@ public class PtGen {
 					break;
 					
 				default:
-					System.out.println("Catégorie de l'ident non répertoriée.");
+					System.out.println("Categorie de l'ident non repertoriÃ©e.");
 					break;
 			}
 			break;
@@ -320,17 +323,3 @@ public class PtGen {
 		}
 	}
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
- 
