@@ -188,13 +188,13 @@ public class PtGen {
 	// code des points de generation A COMPLETER
 	// -----------------------------------------
 	public static void pt(int numGen) {
-	
+		//	Uniquement pour simplifier le debuggage 
+		System.out.println("numGen: " + numGen + "\n");
+
 		switch (numGen) {
 		case 0:
 			initialisations();
 			break;
-
-		// A COMPLETER
 		case 1: //ajout d'une constante
 			placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
 			afftabSymb();
@@ -231,9 +231,87 @@ public class PtGen {
 		case 9: //gestion du type bool
 			tCour = BOOL;
 			break;
+			
+		/****************_ EXPRESSIONS _****************/	
+		case 19: // Vérifie que l'expression attendue est booleenne 
+			verifBool();
+			break;
+		case 20: // Vérifie que l'expression attendue est entière
+			verifEnt();
+			break;
+		case 21: // Produit l'opération OU
+			po.produire(OU);
+			break;
+		case 22: // Produit l'opération ET
+			po.produire(ET);
+			break;
+		case 23: // Produit l'opération NON
+			po.produire(NON);
+			break;
+		case 24: // Produit l'opération =
+			po.produire(EG);
+			tCour = BOOL;
+			break;
+		case 25: // Produit l'opération <>
+			po.produire(DIFF);
+			tCour = BOOL;
+			break;
+		case 26: // Produit l'opération >
+			po.produire(SUP);
+			tCour = BOOL;
+			break;
+		case 27: // Produit l'opération >=
+			po.produire(SUPEG);
+			tCour = BOOL;
+			break;
+		case 28: // Produit l'opération <
+			po.produire(INF);
+			tCour = BOOL;
+			break;
+		case 29: // Produit l'opération <=
+			po.produire(INFEG);
+			tCour = BOOL;
+			break;
+		case 30: // Produit l'opération +
+			po.produire(ADD);
+			break;
+		case 31: // Produit l'opération -
+			po.produire(SOUS);
+			break;
+		case 32: // Produit l'opération *
+			po.produire(MUL);
+			break;
+		case 33: // Produit l'opération /
+			po.produire(DIV);
+			break;
+		case 34: // Empile une valeur entière
+			po.produire(EMPILER);
+			po.produire(vCour);
+			break;
+		case 35: // Gestion de l'identifiant
+			int id = presentIdent(1);
+			if (id == 0) System.out.println("L'identifiant " + UtilLex.numId + " n'existe pas.");
+
+			tCour = tabSymb[id].type;
+			
+			switch (tabSymb[id].categorie) {
+				case CONSTANTE:
+					po.produire(EMPILER);
+					po.produire(tabSymb[id].info);
+					break;
+	
+				case VARGLOBALE:
+					po.produire(CONTENUG);
+					po.produire(tabSymb[id].info);
+					break;
+					
+				default:
+					System.out.println("Catégorie de l'ident non répertoriée.");
+					break;
+			}
+			break;
 		default:
-			System.out
-					.println("Point de generation non prevu dans votre liste");
+			System.out.println("Point de generation non prevu dans votre liste");
 			break;
 
 		}

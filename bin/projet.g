@@ -64,7 +64,7 @@ specif  : ident  ( 'fixe' '(' type  ( ',' type  )* ')' )?
                  ( 'mod'  '(' type  ( ',' type  )* ')' )? 
   ;
   
-consts  : 'const' ( ident  '=' valeur  ptvg {PtGen.pt(1);} )+ 
+consts  : 'const' ( ident '=' valeur  ptvg {PtGen.pt(1);} )+ 
   ;
   
 vars  : 'var' ( type  ident {PtGen.pt(2);} ( ','  ident {PtGen.pt(2);} )* ptvg {PtGen.pt(3);} )+
@@ -143,40 +143,40 @@ effixes : '(' (expression  (',' expression  )*)? ')'
 effmods :'(' (ident  (',' ident  )*)? ')'
   ; 
   
-expression: (exp1) ('ou'  exp1  )*
+expression: (exp1) ('ou' {PtGen.pt(19);} exp1 {PtGen.pt(19); PtGen.pt(21);} )*
   ;
   
-exp1  : exp2 ('et'  exp2  )*
+exp1  : exp2 ('et' {PtGen.pt(19);} exp2 {PtGen.pt(19); PtGen.pt(22);} )*
   ;
   
-exp2  : 'non' exp2 
+exp2  : 'non' exp2 {PtGen.pt(19); PtGen.pt(23);}
   | exp3  
   ;
   
 exp3  : exp4 
-  ( '='   exp4 
-  | '<>'  exp4 
-  | '>'   exp4 
-  | '>='  exp4 
-  | '<'   exp4 
-  | '<='  exp4  
+  ( '='  {PtGen.pt(20);} exp4 {PtGen.pt(20); PtGen.pt(24);}
+  | '<>' {PtGen.pt(20);} exp4 {PtGen.pt(20); PtGen.pt(25);}
+  | '>'  {PtGen.pt(20);} exp4 {PtGen.pt(20); PtGen.pt(26);}
+  | '>=' {PtGen.pt(20);} exp4 {PtGen.pt(20); PtGen.pt(27);}
+  | '<'  {PtGen.pt(20);} exp4 {PtGen.pt(20); PtGen.pt(28);}
+  | '<=' {PtGen.pt(20);} exp4 {PtGen.pt(20); PtGen.pt(29);}
   ) ?
   ;
   
 exp4  : exp5 
-        ('+'  exp5 
-        |'-'  exp5 
+        ('+' {PtGen.pt(20);} exp5 {PtGen.pt(20); PtGen.pt(30);}
+        |'-' {PtGen.pt(20);} exp5 {PtGen.pt(20); PtGen.pt(31);}
         )*
   ;
   
 exp5  : primaire 
-        (    '*'   primaire 
-          | 'div'  primaire 
+        (    '*'  {PtGen.pt(20);} primaire {PtGen.pt(20); PtGen.pt(32);}
+          | 'div' {PtGen.pt(20);} primaire {PtGen.pt(20); PtGen.pt(33);}
         )*
   ;
   
-primaire: valeur 
-  | ident  
+primaire: valeur {PtGen.pt(34);}
+  | ident  {PtGen.pt(35);}
   | '(' expression ')'
   ;
   
@@ -206,8 +206,8 @@ ID  :   ('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')* ;
 // zone purement lexicale //
 
 INT :   '0'..'9'+ ;
-WS  :   (' '|'\t' | '\n' |'\r')+ {skip();} ; // definition des "espaces"
-
+WS  :   (' '|'\t' |'\r')+ {skip();} ; // definition des "espaces"
+LIGNE :   '\n' {UtilLex.incrementeLigne();skip();};
 
 COMMENT
   :  '\{' (.)* '\}' {skip();}   // toute suite de caracteres entouree d'accolades est un commentaire

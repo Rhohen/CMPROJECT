@@ -1,1 +1,5 @@
-g2java projet.g
+cd %~dp0
+
+start g2java projet.g
+
+exit
