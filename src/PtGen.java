@@ -112,7 +112,7 @@ public class PtGen {
     private static int vCour; // valeur de l'expression compilee le cas echeant
   
     private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales
-    
+    private static int indexVarPrec, typeVarPrec, categVarPrec; //Index, type et categorie de l'identifiant precedent
     // Definition de la table des symboles
     private static EltTabSymb[] tabSymb = new EltTabSymb[MAXSYMB + 1];
     
@@ -290,10 +290,10 @@ public class PtGen {
 			break;
 		case 35: // Gestion de l'identifiant
 			int id = presentIdent(1);
-			if (id == 0) System.out.println("L'identifiant " + UtilLex.numId + " n'existe pas.");
-
+			if (id == 0)
+				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 			tCour = tabSymb[id].type;
-			
+
 			switch (tabSymb[id].categorie) {
 				case CONSTANTE:
 					po.produire(EMPILER);
@@ -306,13 +306,77 @@ public class PtGen {
 					break;
 					
 				default:
-					System.out.println("Categorie de l'ident non repertoriee");
+					System.out.println("Categorie de l'ident non repertoriee.");
 					break;
 			}
 			break;
+
 		case 50:
-			System.out.println("Test");
+			switch (tCour) {
+				case ENT:
+					po.produire(ECRENT);
+					break;
+				case BOOL:
+					po.produire(ECRBOOL);
+					break;
+				default:
+					System.out.println("Type non defini.");
+					break;
+			}
 			break;
+			
+		case 51:
+			indexVarPrec = presentIdent(1);
+			if (indexVarPrec == 0)
+				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
+			if (tabSymb[indexVarPrec].categorie == CONSTANTE)
+				System.err.println("La constante " + UtilLex.repId(UtilLex.numId) + " est une constante, et ne doit donc pas etre modifie.");
+
+			tCour = tabSymb[indexVarPrec].type;
+			typeVarPrec = tabSymb[indexVarPrec].type;
+			categVarPrec = tabSymb[indexVarPrec].categorie;
+			break;
+			
+		case 52:
+			if (typeVarPrec == ENT)
+				verifEnt();
+			else
+				verifBool();
+
+			switch (categVarPrec) {
+				case VARGLOBALE:
+					po.produire(AFFECTERG);
+					po.produire(tabSymb[indexVarPrec].info);
+					break;
+				default:
+					System.out.println("Categorie de l'ident non repertoriee.");
+					break;
+			}
+			break;
+			
+		case 53:
+			int id1 = presentIdent(1);
+			if (id1 == 0)
+				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
+			tCour = tabSymb[id1].type;
+
+			if (tCour == ENT)
+				po.produire(LIRENT);
+			else
+				po.produire(LIREBOOL);
+			vCour = tabSymb[id1].info;
+			switch (tabSymb[id1].categorie) {
+				case VARGLOBALE:
+					po.produire(AFFECTERG);
+					po.produire(vCour);
+					break;
+	
+				default:
+					System.out.println("Categorie de l'ident non repertoriee.");
+					break;
+			}
+			break;
+			
 		case 200:
 			po.produire(ARRET);
 			po.constGen();

@@ -1,35 +1,41 @@
 FICHIER a.gen : 
 
-   1  reserver        5
-   3  empiler        77
-   5  empiler         7
-   7  sous      
-   8  empiler         2
-  10  div       
-  11  empiler         1
-  13  empiler         0
-  15  et        
-  16  contenug        2
-  18  non       
-  19  empiler         1
-  21  empiler         0
-  23  ou        
-  24  et        
-  25  contenug        0
-  27  empiler         5
-  29  add       
-  30  empiler        10
-  32  mul       
-  33  contenug        0
-  35  contenug        1
-  37  infeg     
-  38  contenug        0
-  40  empiler        10
-  42  diff      
-  43  ou        
-  44  contenug        0
-  46  contenug        1
-  48  contenug        2
-  50  contenug        3
-  52  contenug        4
-  54  arret     
+   1  reserver        4
+   3  lirent    
+   4  affecterg       0
+   6  lirebool  
+   7  affecterg       1
+   9  contenug        0
+  11  ecrent    
+  12  contenug        1
+  14  ecrbool   
+  15  empiler        25
+  17  empiler        10
+  19  sous      
+  20  empiler         2
+  22  div       
+  23  affecterg       0
+  25  empiler         1
+  27  empiler         0
+  29  et        
+  30  affecterg       1
+  32  empiler         0
+  34  empiler         0
+  36  empiler         0
+  38  non       
+  39  ou        
+  40  ou        
+  41  affecterg       2
+  43  contenug        0
+  45  empiler         7
+  47  eg        
+  48  affecterg       3
+  50  contenug        0
+  52  ecrent    
+  53  contenug        1
+  55  ecrbool   
+  56  contenug        2
+  58  ecrbool   
+  59  contenug        3
+  61  ecrbool   
+  62  arret     
