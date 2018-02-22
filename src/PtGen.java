@@ -310,6 +310,9 @@ public class PtGen {
 					break;
 			}
 			break;
+		case 50:
+			System.out.println("Test");
+			break;
 		case 200:
 			po.produire(ARRET);
 			po.constGen();
@@ -319,7 +322,6 @@ public class PtGen {
 		default:
 			System.out.println("Point de generation non prevu dans votre liste");
 			break;
-
 		}
 	}
 }
