@@ -6,7 +6,6 @@ public class Mapile  {
     
     public static void main (String[] args) {
 	ExecMapile.activer();
-	System.out.println("test");
     }
     
 } // Mapile
