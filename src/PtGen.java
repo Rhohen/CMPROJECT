@@ -1,6 +1,6 @@
 /*********************************************************************************
  * VARIABLES ET METHODES FOURNIES PAR LA CLASSE UtilLex (cf libclass)            *
- *       complement à l'ANALYSEUR LEXICAL produit par ANTLR                      *
+ *       complement Ã  l'ANALYSEUR LEXICAL produit par ANTLR                      *
  *                                                                               *
  *                                                                               *
  *   nom du programme compile, sans suffixe : String UtilLex.nomSource           *
@@ -50,7 +50,7 @@ public class PtGen {
     // types permis :
 	ENT=1,BOOL=2,NEUTRE=3,
 
-	// cat�gories possibles des identificateurs :
+	// catï¿½gories possibles des identificateurs :
 	CONSTANTE=1,VARGLOBALE=2,VARLOCALE=3,PARAMFIXE=4,PARAMMOD=5,PROC=6,
 	DEF=7,REF=8,PRIVEE=9,
 
@@ -107,10 +107,9 @@ public class PtGen {
     private static int tCour; // type de l'expression compilee
     private static int vCour; // valeur de l'expression compilee le cas echeant
   
-    private static int varGlbIt; //iterateur pour remplir tabSymb avec les var globales
-    private static int nbVarAReserver; //nombre de var � r�server lors d'une d�claration
+    private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales
     
-    // D�finition de la table des symboles
+    // Dï¿½finition de la table des symboles
     //
     private static EltTabSymb[] tabSymb = new EltTabSymb[MAXSYMB + 1];
     
@@ -154,7 +153,7 @@ public class PtGen {
 			} else
 				Ecriture.ecrireInt(i, 6);
 			if (tabSymb[i] == null)
-				System.out.println(" r�f�rence NULL");
+				System.out.println(" rï¿½fï¿½rence NULL");
 			else
 				System.out.println(" " + tabSymb[i]);
 		}
@@ -189,47 +188,135 @@ public class PtGen {
 	// code des points de generation A COMPLETER
 	// -----------------------------------------
 	public static void pt(int numGen) {
-	
+		//	Uniquement pour simplifier le debuggage 
+		System.out.println("numGen: " + numGen + "\n");
+
 		switch (numGen) {
 		case 0:
 			initialisations();
 			break;
-
-		// A COMPLETER
 		case 1: //ajout d'une constante
 			placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
-			afftabSymb();
 			break;
-		case 2: //d�claration d'une variable
-			placeIdent(UtilLex.numId, VARGLOBALE, tCour, varGlbIt);
-			nbVarAReserver++;
-			afftabSymb();
+		case 2: //déclaration d'une variable
+			placeIdent(UtilLex.numId, VARGLOBALE, tCour, nbVarGlb);
+			nbVarGlb++;
 			break;
 		case 3: //reservation d'une variable
 			po.produire(RESERVER);
-			po.produire(nbVarAReserver);
-			nbVarAReserver = 0;
+			po.produire(nbVarGlb);
+			break;
+		case 4: //valeur d'un nb entier positif
+			tCour = ENT;
+			vCour = UtilLex.valNb;
+			break;
+		case 5: //valeur d'un nb entier negatif
+			tCour = ENT;
+			vCour = - UtilLex.valNb;
+			break;
+		case 6: //valeur d'un bool true
+			tCour = BOOL;
+			vCour = VRAI;
+			break;
+		case 7: //ajout d'un bool false
+			tCour = BOOL;
+			vCour = FAUX;
+			break;
+		case 8: //gestion du type ent
+			tCour = ENT;
+			break;
+		case 9: //gestion du type bool
+			tCour = BOOL;
+			break;
+			
+		/****************_ EXPRESSIONS _****************/	
+		case 19: // Vérifie que l'expression attendue est booleenne 
+			verifBool();
+			break;
+		case 20: // Vérifie que l'expression attendue est entière
+			verifEnt();
+			break;
+		case 21: // Produit l'opération OU
+			po.produire(OU);
+			break;
+		case 22: // Produit l'opération ET
+			po.produire(ET);
+			break;
+		case 23: // Produit l'opération NON
+			po.produire(NON);
+			break;
+		case 24: // Produit l'opération =
+			po.produire(EG);
+			tCour = BOOL;
+			break;
+		case 25: // Produit l'opération <>
+			po.produire(DIFF);
+			tCour = BOOL;
+			break;
+		case 26: // Produit l'opération >
+			po.produire(SUP);
+			tCour = BOOL;
+			break;
+		case 27: // Produit l'opération >=
+			po.produire(SUPEG);
+			tCour = BOOL;
+			break;
+		case 28: // Produit l'opération <
+			po.produire(INF);
+			tCour = BOOL;
+			break;
+		case 29: // Produit l'opération <=
+			po.produire(INFEG);
+			tCour = BOOL;
+			break;
+		case 30: // Produit l'opération +
+			po.produire(ADD);
+			break;
+		case 31: // Produit l'opération -
+			po.produire(SOUS);
+			break;
+		case 32: // Produit l'opération *
+			po.produire(MUL);
+			break;
+		case 33: // Produit l'opération /
+			po.produire(DIV);
+			break;
+		case 34: // Empile une valeur entière
+			po.produire(EMPILER);
+			po.produire(vCour);
+			break;
+		case 35: // Gestion de l'identifiant
+			int id = presentIdent(1);
+			if (id == 0) System.out.println("L'identifiant " + UtilLex.numId + " n'existe pas.");
+
+			tCour = tabSymb[id].type;
+			
+			switch (tabSymb[id].categorie) {
+				case CONSTANTE:
+					po.produire(EMPILER);
+					po.produire(tabSymb[id].info);
+					break;
+	
+				case VARGLOBALE:
+					po.produire(CONTENUG);
+					po.produire(tabSymb[id].info);
+					break;
+					
+				default:
+					System.out.println("Catégorie de l'ident non répertoriée.");
+					break;
+			}
+			break;
+		case 200:
+			po.produire(ARRET);
 			po.constGen();
+			po.constObj();
+			afftabSymb();
 			break;
 		default:
-			System.out
-					.println("Point de generation non prevu dans votre liste");
+			System.out.println("Point de generation non prevu dans votre liste");
 			break;
 
 		}
 	}
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
- 
