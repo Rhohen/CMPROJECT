@@ -306,7 +306,7 @@ public class PtGen {
 					break;
 					
 				default:
-					System.out.println("Categorie de l'ident non repertoriée.");
+					System.out.println("Categorie de l'ident non repertoriee");
 					break;
 			}
 			break;
