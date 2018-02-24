@@ -4,7 +4,7 @@
 :: Commande si antlr-3.5.2-complete.jar est celui du share
 java -cp  %~dp0..\antlr\antlr-3.5.2-complete.jar org.antlr.Tool %*
 
-
+exit
 :: Commande si antlr-3.5.2-complete.jar EST COPIE SOUS VOTRE REPERTOIRE
 ::    -> pensez alors a indiquer le chemin correct
 :: java -cp H:\...\antlr-3.5.2-complete.jar org.antlr.Tool %*
