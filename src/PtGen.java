@@ -50,7 +50,7 @@ public class PtGen {
     // types permis :
 	ENT=1,BOOL=2,NEUTRE=3,
 
-	// cat�gories possibles des identificateurs :
+	// categories possibles des identificateurs :
 	CONSTANTE=1,VARGLOBALE=2,VARLOCALE=3,PARAMFIXE=4,PARAMMOD=5,PROC=6,
 	DEF=7,REF=8,PRIVEE=9,
 
@@ -157,7 +157,7 @@ public class PtGen {
 			} else
 				Ecriture.ecrireInt(i, 6);
 			if (tabSymb[i] == null)
-				System.out.println(" r�f�rence NULL");
+				System.out.println(" reference NULL");
 			else
 				System.out.println(" " + tabSymb[i]);
 		}
@@ -192,6 +192,9 @@ public class PtGen {
 	// code des points de generation A COMPLETER
 	// -----------------------------------------
 	public static void pt(int numGen) {
+		//	Uniquement pour simplifier le debuggage 
+		System.out.println("numGen: " + numGen + "\n");
+
 		switch (numGen) {
 		case 0:
 			initialisations();
@@ -432,21 +435,6 @@ public class PtGen {
 		default:
 			System.out.println("Point de generation non prevu dans votre liste");
 			break;
-
 		}
 	}
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
- 

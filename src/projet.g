@@ -217,7 +217,3 @@ COMMENT
 // commentaires sur plusieurs lignes
 ML_COMMENT    :   '/*' (options {greedy=false;} : .)* '*/' {$channel=HIDDEN;}
     ;	   
-
-
-
-	   
