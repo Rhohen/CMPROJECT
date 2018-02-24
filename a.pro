@@ -1,12 +1,16 @@
-programme a:
+programme exempcond:
 
-const x=10; y=vrai;
-var ent i;
-
+var bool b1, b2, b3, b4, b5, b6;
 debut
-
-	i:= 5;
-	ecrire(i);
-	ecrire(5+x);
-	ecrire(y et faux);
+	lire(b1,b2,b3,b4,b5,b6);
+	cond
+		b1: ecrire(1),
+		b2: cond
+			b3: ecrire(2),
+				b4: ecrire(3),
+				b5: ecrire(4)
+			aut ecrire(5)
+			fcond, 
+		b6: ecrire(6)
+	fcond ;
 fin

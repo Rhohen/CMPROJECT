@@ -106,7 +106,11 @@ public class PtGen {
     
     private static int tCour; // type de l'expression compilee
     private static int vCour; // valeur de l'expression compilee le cas echeant
-  
+    private static int ident; // Identifiant
+    private static int typeVarPrec; // Type de la variable precedente
+    private static int catVarPrec; // Categorie de la variable precedente
+    private static int identVarPrec; // Categorie de la variable precedente
+    
     private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales
     
     // Dï¿½finition de la table des symboles
@@ -283,23 +287,23 @@ public class PtGen {
 			po.produire(vCour);
 			break;
 		case 35: // Gestion de l'identifiant
-			int id = presentIdent(1);
-			if (id == 0) {
-				System.out.println("L'identifiant " + UtilLex.numId + " n'existe pas.");
+			ident = presentIdent(1);
+			if (ident == 0) {
+				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 				break;
 			}
 
-			tCour = tabSymb[id].type;
+			tCour = tabSymb[ident].type;
 			
-			switch (tabSymb[id].categorie) {
+			switch (tabSymb[ident].categorie) {
 				case CONSTANTE:
 					po.produire(EMPILER);
-					po.produire(tabSymb[id].info);
+					po.produire(tabSymb[ident].info);
 					break;
 	
 				case VARGLOBALE:
 					po.produire(CONTENUG);
-					po.produire(tabSymb[id].info);
+					po.produire(tabSymb[ident].info);
 					break;
 					
 				default:
@@ -308,20 +312,117 @@ public class PtGen {
 			}
 			break;
 			
-			/****************_ CONDITIONS _****************/
+			/****************_ CONDITIONS/ECRITURE/LECTURE _****************/
 		case 50: 
-			switch (tCour) {
-			case ENT:
-				po.produire(ECRENT);
-				break;
-			case BOOL:
+			if (tCour == ENT)
+				po.produire(ECRENT); 
+			else
 				po.produire(ECRBOOL);
+			break;
+			
+		case 51: 
+			ident = presentIdent(1);
+			if (ident == 0) {
+				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 				break;
-			default :
-				System.out.println("Type non identifié");
+			}
+			tCour = tabSymb[ident].type;
+			// check the type
+			if (tCour == ENT)
+				po.produire(LIRENT); // lire la valeur
+			else
+				po.produire(LIREBOOL);
+
+			// tester la categorie
+			switch (tabSymb[ident].categorie) {
+			case VARGLOBALE:
+				po.produire(AFFECTERG);
+				po.produire(tabSymb[ident].info);
+				break;
+			default:
+				System.out.println("Catégorie de l'ident non répertoriée.");
 				break;
 			}
 			break;
+			
+		case 52:
+			identVarPrec = presentIdent(1);
+			if (identVarPrec == 0) {
+				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
+				break;
+			}
+			if (tabSymb[identVarPrec].categorie == CONSTANTE)
+				System.err.println("La constante " + UtilLex.repId(UtilLex.numId) + " ne peut pas etre modifiee.");
+				
+			tCour = tabSymb[identVarPrec].type;
+			typeVarPrec = tabSymb[identVarPrec].type;
+			catVarPrec = tabSymb[identVarPrec].categorie;
+			break;
+
+		case 53:
+			if (typeVarPrec == ENT)
+				verifEnt();
+			else
+				verifBool();
+
+			switch (catVarPrec) {
+			case VARGLOBALE:
+				po.produire(AFFECTERG);
+				po.produire(tabSymb[identVarPrec].info);
+				break;
+			default:
+				System.out.println("Catégorie de l'ident non répertoriée.");
+				break;
+			}
+			break;
+			
+		case 54: 
+			po.produire(BSIFAUX);
+			po.produire(0);
+			pileRep.empiler(po.getIpo());
+			break;
+			
+		case 55: 
+			po.produire(BINCOND);
+			po.produire(0);
+			po.modifier(pileRep.depiler(), po.getIpo()+1);
+			pileRep.empiler(po.getIpo());
+			break;
+			
+		case 56: 
+			po.modifier(pileRep.depiler(), po.getIpo()+1);
+			break;
+			
+		case 57: 
+			pileRep.empiler(po.getIpo());
+			break;
+			
+		case 58: 
+			verifBool();
+			po.produire(BSIFAUX);
+			po.produire(0);
+			pileRep.empiler(po.getIpo());
+			break;
+			
+		case 59: 
+			po.modifier(pileRep.depiler(), po.getIpo()+3);
+			po.produire(BINCOND);
+			po.produire(pileRep.depiler()+1);
+			break;
+			
+		case 60: // Permet de delimiter la fin du case dans pileRep
+			pileRep.empiler(0);
+			break;
+			
+		case 61: 
+			int bincond = pileRep.depiler();
+
+			while (bincond != 0) {
+				po.modifier(bincond, po.getIpo()+1);
+				bincond = pileRep.depiler();
+			}
+			break;
+	
 		case 255:
 			po.produire(ARRET);
 			po.constGen();
