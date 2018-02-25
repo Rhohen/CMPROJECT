@@ -418,12 +418,9 @@ public class PtGen {
 			break;
 			
 		case 61: 
-			int bincond = pileRep.depiler();
-
-			while (bincond != 0) {
+			int bincond;
+			while ((bincond = pileRep.depiler()) != 0)
 				po.modifier(bincond, po.getIpo()+1);
-				bincond = pileRep.depiler();
-			}
 			break;
 	
 		case 255:
