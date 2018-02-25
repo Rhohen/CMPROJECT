@@ -24,3 +24,8 @@ hs_err_pid*
 g2java.bat
 projetLexer.java
 projetParser.java
+
+bin/*
+a.gen
+a.obj
+.classpath
