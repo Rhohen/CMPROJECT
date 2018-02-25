@@ -26,6 +26,6 @@ projetLexer.java
 projetParser.java
 
 bin/*
-a.gen
-a.obj
+*.gen
+*.obj
 .classpath
