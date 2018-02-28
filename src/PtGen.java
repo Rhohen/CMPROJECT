@@ -110,6 +110,8 @@ public class PtGen {
     private static int typeVarPrec; // Type de la variable precedente
     private static int catVarPrec; // Categorie de la variable precedente
     private static int identVarPrec; // Categorie de la variable precedente
+    private static int bsifaux;
+    private static int bincond;
     
     private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales
     
@@ -199,42 +201,42 @@ public class PtGen {
 		case 0:
 			initialisations();
 			break;
-		case 1: //ajout d'une constante
+		case 1: // ajout d'une constante
 			placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
 			break;
-		case 2: //déclaration d'une variable
+		case 2: // déclaration d'une variable
 			placeIdent(UtilLex.numId, VARGLOBALE, tCour, nbVarGlb);
 			nbVarGlb++;
 			break;
-		case 3: //reservation d'une variable
+		case 3: // reservation d'une variable
 			po.produire(RESERVER);
 			po.produire(nbVarGlb);
 			break;
-		case 4: //valeur d'un nb entier positif
+		case 4: // valeur d'un nb entier positif
 			tCour = ENT;
 			vCour = UtilLex.valNb;
 			break;
-		case 5: //valeur d'un nb entier negatif
+		case 5: // valeur d'un nb entier negatif
 			tCour = ENT;
-			vCour = - UtilLex.valNb;
+			vCour = -UtilLex.valNb;
 			break;
-		case 6: //valeur d'un bool true
+		case 6: // valeur d'un bool true
 			tCour = BOOL;
 			vCour = VRAI;
 			break;
-		case 7: //ajout d'un bool false
+		case 7: // ajout d'un bool false
 			tCour = BOOL;
 			vCour = FAUX;
 			break;
-		case 8: //gestion du type ent
+		case 8: // gestion du type ent
 			tCour = ENT;
 			break;
-		case 9: //gestion du type bool
+		case 9: // gestion du type bool
 			tCour = BOOL;
 			break;
-			
-		/****************_ EXPRESSIONS _****************/	
-		case 19: // Vérifie que l'expression attendue est booleenne 
+
+		/**************** _ EXPRESSIONS _ ****************/
+		case 19: // Vérifie que l'expression attendue est booleenne
 			verifBool();
 			break;
 		case 20: // Vérifie que l'expression attendue est entière
@@ -291,13 +293,11 @@ public class PtGen {
 			break;
 		case 35: // Gestion de l'identifiant
 			ident = presentIdent(1);
-			if (ident == 0) {
-				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
-				break;
-			}
+			if (ident == 0)
+				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 
 			tCour = tabSymb[ident].type;
-			
+
 			switch (tabSymb[ident].categorie) {
 				case CONSTANTE:
 					po.produire(EMPILER);
@@ -316,119 +316,120 @@ public class PtGen {
 			break;
 			
 			/****************_ CONDITIONS/ECRITURE/LECTURE _****************/
-		case 50: 
-			if (tCour == ENT)
-				po.produire(ECRENT); 
-			else
-				po.produire(ECRBOOL);
+		case 45: // Ecriture
+			if (tCour == ENT) po.produire(ECRENT); 
+			else po.produire(ECRBOOL);
 			break;
 			
-		case 51: 
+		case 46: // Lecture
 			ident = presentIdent(1);
-			if (ident == 0) {
-				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
-				break;
-			}
-			tCour = tabSymb[ident].type;
-			// check the type
-			if (tCour == ENT)
-				po.produire(LIRENT); // lire la valeur
-			else
-				po.produire(LIREBOOL);
+			if (ident == 0)
+				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 
-			// tester la categorie
+			tCour = tabSymb[ident].type;
+
+			if (tCour == ENT) po.produire(LIRENT);
+			else po.produire(LIREBOOL);
+
 			switch (tabSymb[ident].categorie) {
-			case VARGLOBALE:
-				po.produire(AFFECTERG);
-				po.produire(tabSymb[ident].info);
-				break;
-			default:
-				System.out.println("Catégorie de l'ident non répertoriée.");
-				break;
+				case VARGLOBALE:
+					po.produire(AFFECTERG);
+					po.produire(tabSymb[ident].info);
+					break;
+				default:
+					System.out.println("Catégorie de l'ident non répertoriée.");
+					break;
 			}
 			break;
 			
-		case 52:
+		case 47: // Affectation, sauvegarde des informations de la variable recevant la valeur
 			identVarPrec = presentIdent(1);
-			if (identVarPrec == 0) {
-				System.err.println("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
-				break;
-			}
+			if (identVarPrec == 0)
+				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 			if (tabSymb[identVarPrec].categorie == CONSTANTE)
-				System.err.println("La constante " + UtilLex.repId(UtilLex.numId) + " ne peut pas etre modifiee.");
-				
+				UtilLex.messErr("La constante " + UtilLex.repId(UtilLex.numId) + " ne peut pas etre modifiee.");
+
 			tCour = tabSymb[identVarPrec].type;
 			typeVarPrec = tabSymb[identVarPrec].type;
 			catVarPrec = tabSymb[identVarPrec].categorie;
 			break;
 
-		case 53:
-			if (typeVarPrec == ENT)
-				verifEnt();
-			else
-				verifBool();
+		case 48: // Affectation des valeurs a la variable precedemment enregistree
+			if (typeVarPrec == ENT) verifEnt();
+			else verifBool();
 
 			switch (catVarPrec) {
-			case VARGLOBALE:
-				po.produire(AFFECTERG);
-				po.produire(tabSymb[identVarPrec].info);
-				break;
-			default:
-				System.out.println("Catégorie de l'ident non répertoriée.");
-				break;
+				case VARGLOBALE:
+					po.produire(AFFECTERG);
+					po.produire(tabSymb[identVarPrec].info);
+					break;
+					
+				default:
+					System.out.println("Catégorie de l'ident non répertoriée.");
+					break;
 			}
 			break;
-			
-		case 54: 
+
+		case 49: // Instruction "si"
 			po.produire(BSIFAUX);
 			po.produire(0);
 			pileRep.empiler(po.getIpo());
 			break;
-			
-		case 55: 
+
+		case 50: // Instruction "si", aussi utilisee dans "cond"
 			po.produire(BINCOND);
 			po.produire(0);
-			po.modifier(pileRep.depiler(), po.getIpo()+1);
+			po.modifier(pileRep.depiler(), po.getIpo() + 1);
 			pileRep.empiler(po.getIpo());
 			break;
-			
-		case 56: 
-			po.modifier(pileRep.depiler(), po.getIpo()+1);
+
+		case 51: // Instruction "si"
+			po.modifier(pileRep.depiler(), po.getIpo() + 1);
 			break;
-			
-		case 57: 
+
+		case 52: // Instruction "ttq"
 			pileRep.empiler(po.getIpo());
 			break;
-			
-		case 58: 
+
+		case 53: // Instruction "ttq", aussi utilisee dans "cond"
 			verifBool();
 			po.produire(BSIFAUX);
 			po.produire(0);
 			pileRep.empiler(po.getIpo());
 			break;
-			
-		case 59: 
-			po.modifier(pileRep.depiler(), po.getIpo()+3);
+
+		case 54: // Instruction "ttq"
+			bsifaux = pileRep.depiler();
+			bincond = pileRep.depiler();
 			po.produire(BINCOND);
-			po.produire(pileRep.depiler()+1);
+			po.produire(bincond + 1);
+			po.modifier(bsifaux, po.getIpo() + 1);
 			break;
-			
-		case 60: // Permet de delimiter la fin du case dans pileRep
+
+		case 55: // Instruction "cond", permet de delimiter la fin du case dans pileRep
 			pileRep.empiler(0);
 			break;
-			
-		case 61: 
-			int bincond;
-			while ((bincond = pileRep.depiler()) != 0)
-				po.modifier(bincond, po.getIpo()+1);
+
+		case 56: // Instruction "cond"
+			bsifaux = pileRep.depiler();
+			po.produire(BINCOND);
+			po.produire(0);
+			po.modifier(bsifaux, po.getIpo() + 1);
+			pileRep.empiler(po.getIpo());
 			break;
-	
+
+		case 57: // Instruction "cond"
+			while ((bincond = pileRep.depiler()) != 0)
+				po.modifier(bincond, po.getIpo() + 1);
+			break;
+
 		case 255:
 			po.produire(ARRET);
 			po.constGen();
 			po.constObj();
 			afftabSymb();
 			break;
+
 		default:
 			System.out.println("Point de generation non prevu dans votre liste");
 			break;

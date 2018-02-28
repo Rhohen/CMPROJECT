@@ -1,6 +1,6 @@
 programme exempcond:
 
-var bool b1, b2, b3, b4, b5, b6;
+var bool b1, b2, b3, b4, b5, b6;	{adresses variables dans la pile d'exécution: 0, 1, 2, 3, 4, 5}
 debut
 	lire(b1,b2,b3,b4,b5,b6);
 	cond
