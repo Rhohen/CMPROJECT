@@ -1,0 +1,45 @@
+FICHIER b.gen : 
+
+   1  reserver        4
+   3  empiler        77
+   5  empiler         7
+   7  sous      
+   8  empiler         2
+  10  div       
+  11  affecterg       0
+  13  contenug        0
+  15  empiler        70
+  17  sup       
+  18  bsifaux        39
+  20  empiler         1
+  22  empiler         0
+  24  et        
+  25  affecterg       2
+  27  contenug        0
+  29  empiler         5
+  31  add       
+  32  empiler        10
+  34  mul       
+  35  affecterg       1
+  37  bincond        62
+  39  contenug        0
+  41  empiler         5
+  43  sous      
+  44  empiler         2
+  46  mul       
+  47  affecterg       1
+  49  contenug        0
+  51  contenug        1
+  53  infeg     
+  54  contenug        0
+  56  empiler        10
+  58  diff      
+  59  ou        
+  60  affecterg       2
+  62  contenug        0
+  64  ecrent    
+  65  contenug        1
+  67  ecrent    
+  68  contenug        2
+  70  ecrbool   
+  71  arret     

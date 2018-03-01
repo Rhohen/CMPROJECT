@@ -1,0 +1,27 @@
+FICHIER c.gen : 
+
+   1  reserver        2
+   3  empiler        77
+   5  empiler         7
+   7  sous      
+   8  empiler         2
+  10  div       
+  11  affecterg       0
+  13  contenug        1
+  15  empiler        70
+  17  inf       
+  18  bsifaux        36
+  20  contenug        0
+  22  empiler         2
+  24  mul       
+  25  affecterg       0
+  27  contenug        0
+  29  empiler         5
+  31  div       
+  32  affecterg       1
+  34  bincond        13
+  36  contenug        0
+  38  ecrent    
+  39  contenug        1
+  41  ecrent    
+  42  arret     

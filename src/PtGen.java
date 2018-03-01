@@ -1,6 +1,6 @@
 /*********************************************************************************
  * VARIABLES ET METHODES FOURNIES PAR LA CLASSE UtilLex (cf libclass)            *
- *       complement Ã  l'ANALYSEUR LEXICAL produit par ANTLR                      *
+ *       complement Ã  l'ANALYSEUR LEXICAL produit par ANTLR                      *
  *                                                                               *
  *                                                                               *
  *   nom du programme compile, sans suffixe : String UtilLex.nomSource           *
@@ -50,7 +50,7 @@ public class PtGen {
     // types permis :
 	ENT=1,BOOL=2,NEUTRE=3,
 
-	// catï¿½gories possibles des identificateurs :
+	// categories possibles des identificateurs :
 	CONSTANTE=1,VARGLOBALE=2,VARLOCALE=3,PARAMFIXE=4,PARAMMOD=5,PROC=6,
 	DEF=7,REF=8,PRIVEE=9,
 
@@ -106,7 +106,13 @@ public class PtGen {
     
     private static int tCour; // type de l'expression compilee
     private static int vCour; // valeur de l'expression compilee le cas echeant
-  
+    private static int ident; // Identifiant
+    private static int typeVarPrec; // Type de la variable precedente
+    private static int catVarPrec; // Categorie de la variable precedente
+    private static int identVarPrec; // Categorie de la variable precedente
+    private static int bsifaux;
+    private static int bincond;
+    
     private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales
     
     // Dï¿½finition de la table des symboles
@@ -153,7 +159,7 @@ public class PtGen {
 			} else
 				Ecriture.ecrireInt(i, 6);
 			if (tabSymb[i] == null)
-				System.out.println(" rï¿½fï¿½rence NULL");
+				System.out.println(" reference NULL");
 			else
 				System.out.println(" " + tabSymb[i]);
 		}
@@ -188,46 +194,49 @@ public class PtGen {
 	// code des points de generation A COMPLETER
 	// -----------------------------------------
 	public static void pt(int numGen) {
+		//	Uniquement pour simplifier le debuggage 
+		System.out.println("numGen: " + numGen + "\n");
+
 		switch (numGen) {
 		case 0:
 			initialisations();
 			break;
-		case 1: //ajout d'une constante
+		case 1: // ajout d'une constante
 			placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
 			break;
-		case 2: //déclaration d'une variable
+		case 2: // déclaration d'une variable
 			placeIdent(UtilLex.numId, VARGLOBALE, tCour, nbVarGlb);
 			nbVarGlb++;
 			break;
-		case 3: //reservation d'une variable
+		case 3: // reservation d'une variable
 			po.produire(RESERVER);
 			po.produire(nbVarGlb);
 			break;
-		case 4: //valeur d'un nb entier positif
+		case 4: // valeur d'un nb entier positif
 			tCour = ENT;
 			vCour = UtilLex.valNb;
 			break;
-		case 5: //valeur d'un nb entier negatif
+		case 5: // valeur d'un nb entier negatif
 			tCour = ENT;
-			vCour = - UtilLex.valNb;
+			vCour = -UtilLex.valNb;
 			break;
-		case 6: //valeur d'un bool true
+		case 6: // valeur d'un bool true
 			tCour = BOOL;
 			vCour = VRAI;
 			break;
-		case 7: //ajout d'un bool false
+		case 7: // ajout d'un bool false
 			tCour = BOOL;
 			vCour = FAUX;
 			break;
-		case 8: //gestion du type ent
+		case 8: // gestion du type ent
 			tCour = ENT;
 			break;
-		case 9: //gestion du type bool
+		case 9: // gestion du type bool
 			tCour = BOOL;
 			break;
-			
-		/****************_ EXPRESSIONS _****************/	
-		case 19: // Vérifie que l'expression attendue est booleenne 
+
+		/**************** _ EXPRESSIONS _ ****************/
+		case 19: // Vérifie que l'expression attendue est booleenne
 			verifBool();
 			break;
 		case 20: // Vérifie que l'expression attendue est entière
@@ -283,23 +292,21 @@ public class PtGen {
 			po.produire(vCour);
 			break;
 		case 35: // Gestion de l'identifiant
-			int id = presentIdent(1);
-			if (id == 0) {
-				System.out.println("L'identifiant " + UtilLex.numId + " n'existe pas.");
-				break;
-			}
+			ident = presentIdent(1);
+			if (ident == 0)
+				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 
-			tCour = tabSymb[id].type;
-			
-			switch (tabSymb[id].categorie) {
+			tCour = tabSymb[ident].type;
+
+			switch (tabSymb[ident].categorie) {
 				case CONSTANTE:
 					po.produire(EMPILER);
-					po.produire(tabSymb[id].info);
+					po.produire(tabSymb[ident].info);
 					break;
 	
 				case VARGLOBALE:
 					po.produire(CONTENUG);
-					po.produire(tabSymb[id].info);
+					po.produire(tabSymb[ident].info);
 					break;
 					
 				default:
@@ -308,44 +315,124 @@ public class PtGen {
 			}
 			break;
 			
-			/****************_ CONDITIONS _****************/
-		case 50: 
-			switch (tCour) {
-			case ENT:
-				po.produire(ECRENT);
-				break;
-			case BOOL:
-				po.produire(ECRBOOL);
-				break;
-			default :
-				System.out.println("Type non identifié");
-				break;
+			/****************_ CONDITIONS/ECRITURE/LECTURE _****************/
+		case 45: // Ecriture
+			if (tCour == ENT) po.produire(ECRENT); 
+			else po.produire(ECRBOOL);
+			break;
+			
+		case 46: // Lecture
+			ident = presentIdent(1);
+			if (ident == 0)
+				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
+
+			tCour = tabSymb[ident].type;
+
+			if (tCour == ENT) po.produire(LIRENT);
+			else po.produire(LIREBOOL);
+
+			switch (tabSymb[ident].categorie) {
+				case VARGLOBALE:
+					po.produire(AFFECTERG);
+					po.produire(tabSymb[ident].info);
+					break;
+				default:
+					System.out.println("Catégorie de l'ident non répertoriée.");
+					break;
 			}
 			break;
+			
+		case 47: // Affectation, sauvegarde des informations de la variable recevant la valeur
+			identVarPrec = presentIdent(1);
+			if (identVarPrec == 0)
+				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
+			if (tabSymb[identVarPrec].categorie == CONSTANTE)
+				UtilLex.messErr("La constante " + UtilLex.repId(UtilLex.numId) + " ne peut pas etre modifiee.");
+
+			tCour = tabSymb[identVarPrec].type;
+			typeVarPrec = tabSymb[identVarPrec].type;
+			catVarPrec = tabSymb[identVarPrec].categorie;
+			break;
+
+		case 48: // Affectation des valeurs a la variable precedemment enregistree
+			if (typeVarPrec == ENT) verifEnt();
+			else verifBool();
+
+			switch (catVarPrec) {
+				case VARGLOBALE:
+					po.produire(AFFECTERG);
+					po.produire(tabSymb[identVarPrec].info);
+					break;
+					
+				default:
+					System.out.println("Catégorie de l'ident non répertoriée.");
+					break;
+			}
+			break;
+
+		case 49: // Instruction "si"
+			po.produire(BSIFAUX);
+			po.produire(0);
+			pileRep.empiler(po.getIpo());
+			break;
+
+		case 50: // Instruction "si", aussi utilisee dans "cond"
+			po.produire(BINCOND);
+			po.produire(0);
+			po.modifier(pileRep.depiler(), po.getIpo() + 1);
+			pileRep.empiler(po.getIpo());
+			break;
+
+		case 51: // Instruction "si"
+			po.modifier(pileRep.depiler(), po.getIpo() + 1);
+			break;
+
+		case 52: // Instruction "ttq"
+			pileRep.empiler(po.getIpo());
+			break;
+
+		case 53: // Instruction "ttq", aussi utilisee dans "cond"
+			verifBool();
+			po.produire(BSIFAUX);
+			po.produire(0);
+			pileRep.empiler(po.getIpo());
+			break;
+
+		case 54: // Instruction "ttq"
+			bsifaux = pileRep.depiler();
+			bincond = pileRep.depiler();
+			po.produire(BINCOND);
+			po.produire(bincond + 1);
+			po.modifier(bsifaux, po.getIpo() + 1);
+			break;
+
+		case 55: // Instruction "cond", permet de delimiter la fin du case dans pileRep
+			pileRep.empiler(0);
+			break;
+
+		case 56: // Instruction "cond"
+			bsifaux = pileRep.depiler();
+			po.produire(BINCOND);
+			po.produire(0);
+			po.modifier(bsifaux, po.getIpo() + 1);
+			pileRep.empiler(po.getIpo());
+			break;
+
+		case 57: // Instruction "cond"
+			while ((bincond = pileRep.depiler()) != 0)
+				po.modifier(bincond, po.getIpo() + 1);
+			break;
+
 		case 255:
 			po.produire(ARRET);
 			po.constGen();
 			po.constObj();
 			afftabSymb();
 			break;
+
 		default:
 			System.out.println("Point de generation non prevu dans votre liste");
 			break;
-
 		}
 	}
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
- 

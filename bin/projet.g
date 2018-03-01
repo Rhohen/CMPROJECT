@@ -3,28 +3,19 @@
 // Anne Grazon, Veronique Masson
 // il convient d'y inserer les appels a {PtGen.pt(k);}
 // relancer Antlr apres chaque modification et raffraichir le projet Eclipse le cas echeant
-
 // attention l'analyse est poursuivie apres erreur si l'on supprime la clause rulecatch
-
 grammar projet;
-
 options {
   language=Java; k=1;
  }
-
 @header {           
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 } 
-
-
 // partie syntaxique :  description de la grammaire //
 // les non-terminaux doivent commencer par une minuscule
-
-
 @members {
-
  
 // variables globales et methodes utiles a placer ici
   
@@ -32,8 +23,6 @@ import java.io.FileInputStream;
 // la directive rulecatch permet d'interrompre l'analyse a la premiere erreur de syntaxe
 @rulecatch {
 catch (RecognitionException e) {reportError (e) ; throw e ; }}
-
-
 unite  :   unitprog  EOF
       |    unitmodule  EOF
   ;
@@ -92,7 +81,6 @@ parfixe: 'fixe' '(' pf ( ';' pf)* ')'
   
 pf  : type ident  ( ',' ident  )*  
   ;
-
 parmod  : 'mod' '(' pm ( ';' pm)* ')'
   ;
   
@@ -113,26 +101,26 @@ instruction
   |
   ;
   
-inssi : 'si' expression 'alors' instructions ('sinon'  instructions)? 'fsi' 
+inssi : 'si' expression {PtGen.pt(49);} 'alors' instructions ( 'sinon' {PtGen.pt(50);} instructions)? {PtGen.pt(51);} 'fsi' 
   ;
   
-inscond : 'cond'  expression  ':' instructions 
-          (','  expression  ':' instructions )* 
-          ('aut'  instructions |  ) 
-          'fcond' 
+inscond : 'cond' {PtGen.pt(55);} expression {PtGen.pt(53);} ':' instructions 
+          (',' {PtGen.pt(50);} expression {PtGen.pt(53);} ':' instructions )* 
+          ('aut' {PtGen.pt(56);} instructions |  ) 
+          {PtGen.pt(57);} 'fcond' 
   ;
   
-boucle  : 'ttq'  expression 'faire' instructions 'fait' 
+boucle  : 'ttq' {PtGen.pt(52);} expression {PtGen.pt(53);} 'faire' instructions {PtGen.pt(54);} 'fait'
   ;
   
-lecture: 'lire' '(' ident  ( ',' ident  )* ')' 
+lecture: 'lire' '(' ident {PtGen.pt(46);} ( ',' ident {PtGen.pt(46);} )* ')' 
   ;
   
-ecriture: 'ecrire' '(' expression  ( ',' expression  )* ')' {PtGen.pt(50);}
+ecriture: 'ecrire' '(' expression  {PtGen.pt(45);} ( ',' expression  {PtGen.pt(45);} )* ')'
    ;
   
 affouappel
-  : ident  (    ':=' expression 
+  : ident {PtGen.pt(47);} ( ':='  expression {PtGen.pt(48);}
             |   (effixes (effmods)?)?  
            )
   ;
@@ -186,7 +174,6 @@ valeur  : nbentier {PtGen.pt(4);}
   | 'vrai' {PtGen.pt(6);}
   | 'faux' {PtGen.pt(7);}
   ;
-
 // partie lexicale  : cette partie ne doit pas etre modifie  //
 // les unites lexicales de ANTLR doivent commencer par une majuscule
 // attention : ANTLR n'autorise pas certains traitements sur les unites lexicales, 
@@ -195,7 +182,6 @@ valeur  : nbentier {PtGen.pt(4);}
  
       
 nbentier  :   INT { UtilLex.valNb = Integer.parseInt($INT.text);}; // mise a jour de valNb
-
 ident : ID  { UtilLex.traiterId($ID.text); } ; // mise a jour de numId
      // tous les identificateurs seront places dans la table des identificateurs, y compris le nom du programme ou module
      // la table des symboles n'est pas geree au niveau lexical
@@ -216,8 +202,4 @@ COMMENT
 
 // commentaires sur plusieurs lignes
 ML_COMMENT    :   '/*' (options {greedy=false;} : .)* '*/' {$channel=HIDDEN;}
-    ;	   
-
-
-
-	   
+    ;
