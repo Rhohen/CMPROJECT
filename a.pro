@@ -1,16 +1,29 @@
-programme exempcond:
+programme exo6:
 
-var bool b1, b2, b3, b4, b5, b6;	{adresses variables dans la pile d'exécution: 0, 1, 2, 3, 4, 5}
+var ent res; bool op;
+
+proc verifdrapeau fixe (ent v) mod (ent r; bool b)
+	var bool drap;
 debut
-	lire(b1,b2,b3,b4,b5,b6);
+	drap:=faux;
 	cond
-		b1: ecrire(1),
-		b2: cond
-			b3: ecrire(2),
-				b4: ecrire(3),
-				b5: ecrire(4)
-			aut ecrire(5)
-			fcond, 
-		b6: ecrire(6)
-	fcond ;
+		v=0: drap:=vrai; r:=0; op:=vrai, {addition}
+		v=1: drap:=vrai; r:=1; op:=faux  {multiplication}
+	fcond;
+	b:=drap;
+fin;
+
+proc recurs mod (ent r)
+	var ent x; bool marq;
+debut
+	lire(x);
+	verifdrapeau(x)(r, marq);
+	si non marq alors
+		recurs()(r);
+		si op alors r:=x+r sinon r:=x*r fsi
+	fsi
+fin;
+
+debut
+	recurs()(res); ecrire(res);
 fin
