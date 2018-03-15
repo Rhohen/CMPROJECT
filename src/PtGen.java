@@ -104,18 +104,7 @@ public class PtGen {
     // -------------------------
     public static String trinome="CroqGiraultJouin"; // MERCI de renseigner ici un nom pour le trinome, constitue de exclusivement de lettres
     
-    private static int tCour; // type de l'expression compilee
-    private static int vCour; // valeur de l'expression compilee le cas echeant
-    private static int ident; // Identifiant
-    private static int typeVarPrec; // Type de la variable precedente
-    private static int catVarPrec; // Categorie de la variable precedente
-    private static int identVarPrec; // Categorie de la variable precedente
-    private static int bsifaux;
-    private static int bincond;
-    
-    private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales
-    
-    // Dï¿½finition de la table des symboles
+    // Definition de la table des symboles
     //
     private static EltTabSymb[] tabSymb = new EltTabSymb[MAXSYMB + 1];
     
@@ -169,6 +158,17 @@ public class PtGen {
 
 	// initialisations A COMPLETER SI BESOIN
 	// -------------------------------------
+	private static int tCour; // type de l'expression compilee
+    private static int vCour; // valeur de l'expression compilee le cas echeant
+    private static int ident; // Identifiant
+    private static int typeVarPrec; // Type de la variable precedente
+    private static int catVarPrec; // Categorie de la variable precedente
+    private static int identVarPrec; // Categorie de la variable precedente
+    private static int bsifaux;
+    private static int bincond;
+    private static int indVar; // iterateur pour remplir tabSymb avec les var locales et globales
+    private static int nbParamProc; // nombre de parametre de la procedure actuelle
+    private static int identParamMod;
 
 	public static void initialisations() {
 	
@@ -200,17 +200,25 @@ public class PtGen {
 		switch (numGen) {
 		case 0:
 			initialisations();
+			indVar = 0;
 			break;
 		case 1: // ajout d'une constante
-			placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
+			if (presentIdent(1) == 0) placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
+			else UtilLex.messErr("La constante " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree.");
 			break;
 		case 2: // déclaration d'une variable
-			placeIdent(UtilLex.numId, VARGLOBALE, tCour, nbVarGlb);
-			nbVarGlb++;
+			if (presentIdent(bc) == 0) {
+				if (bc > 1) placeIdent(UtilLex.numId, VARLOCALE, tCour, indVar);
+				else placeIdent(UtilLex.numId, VARGLOBALE, tCour, indVar);
+				indVar++;
+    		} else UtilLex.messErr("La variable " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree.");
 			break;
-		case 3: // reservation d'une variable
+		case 3: // reservation des variables globales et locales
 			po.produire(RESERVER);
-			po.produire(nbVarGlb);
+			if  (bc > 1)
+				po.produire(indVar - (nbParamProc + 2));
+			else
+				po.produire(indVar);
 			break;
 		case 4: // valeur d'un nb entier positif
 			tCour = ENT;
@@ -291,14 +299,14 @@ public class PtGen {
 			po.produire(EMPILER);
 			po.produire(vCour);
 			break;
-		case 35: // Gestion de l'identifiant
-			ident = presentIdent(1);
-			if (ident == 0)
+		case 35: // Gestion de l'identifiant/
+			if ((ident = presentIdent(1)) == 0)
 				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 
 			tCour = tabSymb[ident].type;
 
 			switch (tabSymb[ident].categorie) {
+			
 				case CONSTANTE:
 					po.produire(EMPILER);
 					po.produire(tabSymb[ident].info);
@@ -307,6 +315,24 @@ public class PtGen {
 				case VARGLOBALE:
 					po.produire(CONTENUG);
 					po.produire(tabSymb[ident].info);
+					break;
+					
+				case VARLOCALE:
+					po.produire(CONTENUL);
+					po.produire(tabSymb[ident].info);
+					po.produire(0);
+					break;
+					
+				case PARAMMOD:
+					po.produire(CONTENUL);
+					po.produire(tabSymb[ident].info);
+					po.produire(1);
+					break;
+					
+				case PARAMFIXE:
+					po.produire(CONTENUL);
+					po.produire(tabSymb[ident].info);
+					po.produire(0);
 					break;
 					
 				default:
@@ -322,8 +348,7 @@ public class PtGen {
 			break;
 			
 		case 46: // Lecture
-			ident = presentIdent(1);
-			if (ident == 0)
+			if ((ident = presentIdent(1)) == 0)
 				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 
 			tCour = tabSymb[ident].type;
@@ -332,10 +357,28 @@ public class PtGen {
 			else po.produire(LIREBOOL);
 
 			switch (tabSymb[ident].categorie) {
+			
 				case VARGLOBALE:
 					po.produire(AFFECTERG);
 					po.produire(tabSymb[ident].info);
 					break;
+					
+				case VARLOCALE:
+					po.produire(AFFECTERL);
+					po.produire(tabSymb[ident].info);
+					po.produire(0);
+				break;
+
+				case PARAMMOD:
+					po.produire(AFFECTERL);
+					po.produire(tabSymb[ident].info);
+					po.produire(1);
+				break;
+				
+				case PARAMFIXE:
+					System.out.println("Un paramfixe ne peut être pris en lecture.");
+					break;
+					
 				default:
 					System.out.println("Catégorie de l'ident non répertoriée.");
 					break;
@@ -343,8 +386,7 @@ public class PtGen {
 			break;
 			
 		case 47: // Affectation, sauvegarde des informations de la variable recevant la valeur
-			identVarPrec = presentIdent(1);
-			if (identVarPrec == 0)
+			if ((identVarPrec = presentIdent(1)) == 0)
 				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 			if (tabSymb[identVarPrec].categorie == CONSTANTE)
 				UtilLex.messErr("La constante " + UtilLex.repId(UtilLex.numId) + " ne peut pas etre modifiee.");
@@ -359,9 +401,26 @@ public class PtGen {
 			else verifBool();
 
 			switch (catVarPrec) {
+			
 				case VARGLOBALE:
 					po.produire(AFFECTERG);
 					po.produire(tabSymb[identVarPrec].info);
+					break;
+					
+				case VARLOCALE:
+					po.produire(AFFECTERL);
+					po.produire(tabSymb[identVarPrec].info);
+					po.produire(0);
+					break;
+
+				case PARAMMOD:
+					po.produire(AFFECTERL);
+					po.produire(tabSymb[identVarPrec].info);
+					po.produire(1);
+					break;
+					
+				case PARAMFIXE:
+					System.out.println("Un paramfixe ne peut être modifiée.");
 					break;
 					
 				default:
@@ -383,7 +442,7 @@ public class PtGen {
 			pileRep.empiler(po.getIpo());
 			break;
 
-		case 51: // Instruction "si"
+		case 51: // Instruction "si", aussi utilisee dans la maj du bincond de proc
 			po.modifier(pileRep.depiler(), po.getIpo() + 1);
 			break;
 
@@ -422,7 +481,87 @@ public class PtGen {
 			while ((bincond = pileRep.depiler()) != 0)
 				po.modifier(bincond, po.getIpo() + 1);
 			break;
+			
+			/****************_ PROCEDURE _****************/
+		case 65: // 
+			if (presentIdent(1) == 0) {
+				placeIdent(UtilLex.numId, PROC, NEUTRE, po.getIpo() + 1);
+				placeIdent(-1, PRIVEE, NEUTRE, 0);
+				bc = it + 1;
+				nbParamProc = 0;
+			} else UtilLex.messErr("La procedure " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree.");
+			break;
+			
+		case 66: // 
+			if (presentIdent(bc) == 0) {
+				placeIdent(UtilLex.numId, PARAMFIXE, tCour, nbParamProc);
+				nbParamProc++;
+			} else UtilLex.messErr("Le parametre fixe " + UtilLex.repId(UtilLex.numId) + " a deja ete declare.");
+			break;
+			
+		case 67: // 
+			if (presentIdent(bc) == 0) {
+				placeIdent(UtilLex.numId, PARAMMOD, tCour, nbParamProc);
+				nbParamProc++;
+			} else UtilLex.messErr("Le parametre modifiable " + UtilLex.repId(UtilLex.numId) + " a deja ete declare.");
+			break;
+			
+		case 68: // 
+			tabSymb[bc-1].info = nbParamProc;
+			indVar = nbParamProc + 2;
+			break;
+			
+		case 69: // 
+			po.produire(RETOUR);
+			po.produire(nbParamProc);
 
+			// Supprime les var locales
+			it = bc + nbParamProc-1;
+
+			// On met a -1 les codes des parametres de la procedure
+			for (int i = it ; i >= bc ; i--) 
+				tabSymb[i].code = -1;
+			break;
+
+		case 70: // 
+			po.produire(BINCOND);
+			po.produire(0);
+			pileRep.empiler(po.getIpo());
+			break;
+			
+		case 71: // 
+			if ((identParamMod = presentIdent(1)) == 0) UtilLex.messErr("Le parametre modifiable " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
+
+			switch (tabSymb[identParamMod].categorie) {
+			
+				case VARGLOBALE:
+					po.produire(EMPILERADG);
+					po.produire(tabSymb[identParamMod].info);
+					break;
+				
+				case VARLOCALE:
+					po.produire(EMPILERADL);
+					po.produire(tabSymb[identParamMod].info);
+					po.produire(0);
+					break;
+					
+				case PARAMMOD:
+					po.produire(EMPILERADL);
+					po.produire(tabSymb[identParamMod].info);
+					po.produire(1);
+					break;
+					
+				default:
+					System.out.println("Catégorie de l'ident non répertoriée.");
+					break;
+			}
+			break;
+			
+		case 72:
+			po.produire(APPEL);
+			po.produire(tabSymb[identVarPrec].info);
+			po.produire(tabSymb[identVarPrec+1].info);
+			break;
 		case 255:
 			po.produire(ARRET);
 			po.constGen();

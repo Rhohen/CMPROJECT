@@ -23,14 +23,14 @@ import java.io.FileInputStream;
 // la directive rulecatch permet d'interrompre l'analyse a la premiere erreur de syntaxe
 @rulecatch {
 catch (RecognitionException e) {reportError (e) ; throw e ; }}
-unite  :   unitprog  EOF
+unite  :   unitprog  EOF  
       |    unitmodule  EOF
   ;
   
 unitprog
   : 'programme' ident ':'  
      declarations  
-     corps { System.out.println("succes, arret de la compilation "); }
+     corps {PtGen.pt(255);} { System.out.println("succes, arret de la compilation "); }
   ;
   
 unitmodule
@@ -56,35 +56,35 @@ specif  : ident  ( 'fixe' '(' type  ( ',' type  )* ')' )?
 consts  : 'const' ( ident '=' valeur  ptvg {PtGen.pt(1);} )+ 
   ;
   
-vars  : 'var' ( type  ident {PtGen.pt(2);} ( ','  ident {PtGen.pt(2);} )* ptvg )+
+vars  : 'var' ( type  ident {PtGen.pt(2);} ( ','  ident {PtGen.pt(2);} )* ptvg )+ {PtGen.pt(3);}
   ;
   
 type  : 'ent' {PtGen.pt(8);} 
   |     'bool' {PtGen.pt(9);}
   ;
   
-decprocs: (decproc ptvg)+
+decprocs: {PtGen.pt(70);} (decproc ptvg)+ {PtGen.pt(51);}
   ;
   
-decproc :  'proc'  ident  parfixe? parmod? consts? vars? corps 
+decproc :  'proc'  ident {PtGen.pt(65);} parfixe? parmod? {PtGen.pt(68);} consts? vars?  corps {PtGen.pt(69);}
   ;
   
 ptvg  : ';'
   | 
   ;
   
-corps : {PtGen.pt(3);} 'debut' instructions 'fin' {PtGen.pt(255);}
+corps : 'debut' instructions 'fin'
   ;
   
 parfixe: 'fixe' '(' pf ( ';' pf)* ')'
   ;
   
-pf  : type ident  ( ',' ident  )*  
+pf  : type ident {PtGen.pt(66);} ( ',' ident {PtGen.pt(66);} )*  
   ;
 parmod  : 'mod' '(' pm ( ';' pm)* ')'
   ;
   
-pm  : type ident  ( ',' ident  )*
+pm  : type ident {PtGen.pt(67);} ( ',' ident {PtGen.pt(67);} )*
   ;
   
 instructions
@@ -121,14 +121,14 @@ ecriture: 'ecrire' '(' expression  {PtGen.pt(45);} ( ',' expression  {PtGen.pt(4
   
 affouappel
   : ident {PtGen.pt(47);} ( ':='  expression {PtGen.pt(48);}
-            |   (effixes (effmods)?)?  
+            |   (effixes (effmods)?)? {PtGen.pt(72);}
            )
   ;
   
 effixes : '(' (expression  (',' expression  )*)? ')'
   ;
   
-effmods :'(' (ident  (',' ident  )*)? ')'
+effmods :'(' (ident {PtGen.pt(71);} (',' ident {PtGen.pt(71);} )*)? ')'
   ; 
   
 expression: (exp1) ('ou' {PtGen.pt(19);} exp1 {PtGen.pt(19); PtGen.pt(21);} )*
@@ -202,4 +202,4 @@ COMMENT
 
 // commentaires sur plusieurs lignes
 ML_COMMENT    :   '/*' (options {greedy=false;} : .)* '*/' {$channel=HIDDEN;}
-    ;
+    ;	   
