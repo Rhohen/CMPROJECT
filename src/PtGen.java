@@ -104,6 +104,8 @@ public class PtGen {
     // -------------------------
     public static String trinome="CroqGiraultJouin"; // MERCI de renseigner ici un nom pour le trinome, constitue de exclusivement de lettres
     
+    private static int tCour; // type de l'expression compilee
+    private static int vCour; // valeur de l'expression compilee le cas echeant
     // Definition de la table des symboles
     //
     private static EltTabSymb[] tabSymb = new EltTabSymb[MAXSYMB + 1];
@@ -158,8 +160,6 @@ public class PtGen {
 
 	// initialisations A COMPLETER SI BESOIN
 	// -------------------------------------
-	private static int tCour; // type de l'expression compilee
-    private static int vCour; // valeur de l'expression compilee le cas echeant
     private static int ident; // Identifiant
     private static int typeVarPrec; // Type de la variable precedente
     private static int catVarPrec; // Categorie de la variable precedente
