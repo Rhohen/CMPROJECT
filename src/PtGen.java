@@ -106,17 +106,7 @@ public class PtGen {
     
     private static int tCour; // type de l'expression compilee
     private static int vCour; // valeur de l'expression compilee le cas echeant
-    private static int ident; // Identifiant
-    private static int typeVarPrec; // Type de la variable precedente
-    private static int catVarPrec; // Categorie de la variable precedente
-    private static int identVarPrec; // Categorie de la variable precedente
-    private static int bsifaux;
-    private static int bincond;
-    private static int indVar; // iterateur pour remplir tabSymb avec les var locales et globales
-    private static int nbParamProc; // nombre de parametre de la procedure actuelle
-    private static int identParamMod;
-    //private static int nbVarGlb; //iterateur pour remplir tabSymb avec les var globales, plus besoin
-    
+
     // Definition de la table des symboles
     //
     private static EltTabSymb[] tabSymb = new EltTabSymb[MAXSYMB + 1];
@@ -171,7 +161,16 @@ public class PtGen {
 
 	// initialisations A COMPLETER SI BESOIN
 	// -------------------------------------
-
+    private static int ident; // Identifiant
+    private static int typeVarPrec; // Type de la variable precedente
+    private static int catVarPrec; // Categorie de la variable precedente
+    private static int identVarPrec; // Categorie de la variable precedente
+    private static int bsifaux;
+    private static int bincond;
+    private static int indVar; // iterateur pour remplir tabSymb avec les var locales et globales
+    private static int nbParamProc; // nombre de parametre de la procedure actuelle
+    private static int identParamMod;
+	
 	public static void initialisations() {
 	
 		// indices de gestion de la table des symboles
@@ -202,6 +201,7 @@ public class PtGen {
 		switch (numGen) {
 		case 0:
 			initialisations();
+			indVar = 0;
 			break;
 		case 1: // ajout d'une constante
 			if (presentIdent(1) == 0) placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
