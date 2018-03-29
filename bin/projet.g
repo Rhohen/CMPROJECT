@@ -18,7 +18,6 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 } 
 
-
 // partie syntaxique :  description de la grammaire //
 // les non-terminaux doivent commencer par une minuscule
 
@@ -34,8 +33,8 @@ import java.io.FileInputStream;
 catch (RecognitionException e) {reportError (e) ; throw e ; }}
 
 
-unite  :   unitprog  EOF  
-      |    unitmodule  EOF
+unite  :  {PtGen.pt(84);}{PtGen.pt(82);} unitprog {PtGen.pt(85);} EOF  
+      |   {PtGen.pt(84);}{PtGen.pt(83);} unitmodule {PtGen.pt(85);} EOF
   ;
   
 unitprog
@@ -130,7 +129,7 @@ lecture: 'lire' '(' ident {PtGen.pt(46);} ( ',' ident {PtGen.pt(46);} )* ')'
   
 ecriture: 'ecrire' '(' expression  {PtGen.pt(45);} ( ',' expression  {PtGen.pt(45);} )* ')'
    ;
-  
+
 affouappel
   : ident {PtGen.pt(47);} ( ':='  expression {PtGen.pt(48);}
             |   (effixes (effmods)?)? {PtGen.pt(72);}

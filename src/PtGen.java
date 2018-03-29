@@ -555,13 +555,74 @@ public class PtGen {
 			po.produire(tabSymb[identVarPrec].info);
 			po.produire(tabSymb[identVarPrec+1].info);
 			break;
+			
+			
+			/****************_ PROGRAMMATION SEPAREE _****************/
+			// Informe que l unite est de type programme
+		case 82:
+			desc.setUnite("programme");
+			break;
+			
+			// Informe que l unite est de type module
+		case 83:
+			desc.setUnite("module");
+			break;
+			
+		case 84:
+			desc = new Descripteur();
+			break;
+			
+		case 85:
+			desc.setTailleCode(po.getIpo());
+			//tailleGlobaux peu etre différent selon le module, faire desc.set... = indVar apres var ?
+			//l'increm de Def et ref sont faites automatiquement
+			//nbTransExt, utiliser modifVecteurTrans( TRANSDON=1 | TRANSCODE=2 | REFEXT=3 );, mais moi pas comprendre comment
+					/* TRANSDON  : appel a une variable globale de l unite actuelle (pas sur)
+					 * TRANSCODE : pour les bsifaux/bincond
+					 * REFEXT    : appel d une fonction ou variable globale exterieure à l unite actuelle
+					 */
+			//tabDef a l'air bien chiante
+			//tabRef aussi
+			
+			// Generation du .desc
+			desc.ecrireDesc(UtilLex.nomSource);
+			break;
+			
+		case 86:
+			
+			break;
+			
+		case 87:
+			
+			break;
+			
+		case 88:
+			
+			break;
+			
+		case 89:
+			
+			break;
+			
+		case 90:
+			
+			break;
+			
+		case 91:
+			
+			break;
+			
+		case 92:
+			
+			break;
+			
 		case 255:
 			po.produire(ARRET);
 			po.constGen();
 			po.constObj();
 			afftabSymb();
 			break;
-
+			
 		default:
 			System.out.println("Point de generation non prevu dans votre liste");
 			break;
