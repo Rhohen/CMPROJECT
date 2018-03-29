@@ -23,8 +23,8 @@ import java.io.FileInputStream;
 // la directive rulecatch permet d'interrompre l'analyse a la premiere erreur de syntaxe
 @rulecatch {
 catch (RecognitionException e) {reportError (e) ; throw e ; }}
-unite  :   unitprog  EOF  
-      |    unitmodule  EOF
+unite  :  {PtGen.pt(84);}{PtGen.pt(82);} unitprog {PtGen.pt(85);} EOF  
+      |   {PtGen.pt(84);}{PtGen.pt(83);} unitmodule {PtGen.pt(85);} EOF
   ;
   
 unitprog
@@ -43,14 +43,14 @@ declarations
   ;
   
 partiedef
-  : 'def' ident  (',' ident )* ptvg
+  : 'def' ident {PtGen.pt(86);} (',' ident {PtGen.pt(86);})* ptvg
   ;
   
-partieref: 'ref'  specif (',' specif)* ptvg
+partieref: 'ref' specif (',' specif )* ptvg
   ;
   
-specif  : ident  ( 'fixe' '(' type  ( ',' type  )* ')' )? 
-                 ( 'mod'  '(' type  ( ',' type  )* ')' )? 
+specif  : ident {PtGen.pt(87);} ( 'fixe' '(' type {PtGen.pt(88);} ( ',' type {PtGen.pt(88);} )* ')' )? 
+                 ( 'mod' '(' type {PtGen.pt(89);} ( ',' type {PtGen.pt(89);} )* ')' )?
   ;
   
 consts  : 'const' ( ident '=' valeur  ptvg {PtGen.pt(1);} )+ 
@@ -118,7 +118,6 @@ lecture: 'lire' '(' ident {PtGen.pt(46);} ( ',' ident {PtGen.pt(46);} )* ')'
   
 ecriture: 'ecrire' '(' expression  {PtGen.pt(45);} ( ',' expression  {PtGen.pt(45);} )* ')'
    ;
-  
 affouappel
   : ident {PtGen.pt(47);} ( ':='  expression {PtGen.pt(48);}
             |   (effixes (effmods)?)? {PtGen.pt(72);}
@@ -202,4 +201,4 @@ COMMENT
 
 // commentaires sur plusieurs lignes
 ML_COMMENT    :   '/*' (options {greedy=false;} : .)* '*/' {$channel=HIDDEN;}
-    ;	   
+    ;	
