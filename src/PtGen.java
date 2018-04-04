@@ -606,15 +606,6 @@ public class PtGen {
 			break;
 			
 		case 85:
-			
-			//tailleGlobaux peu etre différent selon le module, faire desc.set... = indVar apres var ?
-			//l'increm de Def et ref sont faites automatiquement
-			//nbTransExt, utiliser modifVecteurTrans( TRANSDON=1 | TRANSCODE=2 | REFEXT=3 );, mais moi pas comprendre comment
-					/* TRANSDON  : appel a une variable globale de l unite interne ou externe au prog (pas sur)
-					 * TRANSCODE : pour les bsifaux/bincond
-					 * REFEXT    : appel d une fonction à l unite actuelle
-					 */
-			
 			if (desc.getUnite().equals("programme"))
 				po.produire(ARRET);
 			
@@ -637,12 +628,15 @@ public class PtGen {
 		case 87: // ajout a la tableRef
 			if (desc.presentRef(UtilLex.repId(UtilLex.numId)) == 0) {
 				desc.ajoutRef(UtilLex.repId(UtilLex.numId));
+				desc.modifRefNbParam(desc.presentRef(UtilLex.repId(UtilLex.numId)), nbParamRef);
 				placeIdent(UtilLex.numId, PROC, NEUTRE, desc.getNbRef());
 				placeIdent(-1, REF, NEUTRE, nbParamRef);
 				
 				nbParamRef = 0;
 			} else
 				UtilLex.messErr("La ref " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree");
+
+			
 			break;
 
 		case 88:
@@ -650,28 +644,28 @@ public class PtGen {
 			break;
 
 		case 89:
+			desc.ecrireDesc(UtilLex.nomSource);
 			nbParamRef++;
 			break;
 
-			
 		case 90:
-
 	    	// Mise a jour de tabDef via tabSymb
 	    	// Pour chaque ligne de tabDef
 	    	for (int i = 1; i <= desc.getNbDef(); i++) {
-
+	    		
 	    		// Recupere la ligne dans tabSymb
     			int j = 1;
     			boolean found = false;
     			while ((j < it) && (!found)) {
 
     				// Si on a trouve la procedure definie par def
-    				if ((tabSymb[j].categorie == PROC) && (desc.getDefNomProc(i).equals(UtilLex.repId(tabSymb[j].code)))) {
+    				if ((tabSymb[j].categorie == PROC) &&
+    					(desc.getDefNomProc(i).equals(UtilLex.repId(tabSymb[j].code)))) {
 
 		    			// Met a jour l'adresse du programme
     					desc.modifDefAdPo(i, tabSymb[j].info);
     					desc.modifDefNbParam(i, tabSymb[j+1].info);
-
+    				
 		    			// Met a jour le type du tabSymb
 		    			tabSymb[j+1].categorie = DEF;
 
@@ -690,11 +684,8 @@ public class PtGen {
 			break;
 			
 		case 91:
-			
-			break;
-			
-		case 92:
-			
+			// initialisation du nombre de paramRef
+			nbParamRef = 0;
 			break;
 			
 		default:

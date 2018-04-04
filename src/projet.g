@@ -59,7 +59,7 @@ partiedef
 partieref: 'ref' specif {PtGen.pt(87);} (',' specif  {PtGen.pt(87);} )* ptvg
   ;
   
-specif  : ident ( 'fixe' '(' type {PtGen.pt(88);} ( ',' type {PtGen.pt(88);} )* ')' )? 
+specif  : {PtGen.pt(91);} ident ( 'fixe' '(' type {PtGen.pt(88);} ( ',' type {PtGen.pt(88);} )* ')' )? 
                  ( 'mod' '(' type {PtGen.pt(89);} ( ',' type {PtGen.pt(89);} )* ')' )?
   ;
   
