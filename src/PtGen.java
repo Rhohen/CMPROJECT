@@ -171,6 +171,9 @@ public class PtGen {
     private static int nbParamProc; // nombre de parametre de la procedure actuelle
     private static int identParamMod;
 	
+	private static int nbParamRef;
+	private static int idProcDef;
+
 	public static void initialisations() {
 	
 		// indices de gestion de la table des symboles
@@ -215,11 +218,16 @@ public class PtGen {
     		} else UtilLex.messErr("La variable " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree.");
 			break;
 		case 3: // reservation des variables globales et locales
-			po.produire(RESERVER);
-			if  (bc > 1)
-				po.produire(indVar - (nbParamProc + 2));
-			else
-				po.produire(indVar);
+			if (desc.getUnite().equals("programme")) {
+				po.produire(RESERVER);
+				if  (bc > 1)
+					po.produire(indVar - (nbParamProc + 2));
+				else
+					po.produire(indVar);
+			}
+			
+			// Ajout du nombre de var globales au descripteur de l unite actuelle
+			desc.setTailleGlobaux(indVar);
 			break;
 		case 4: // valeur d'un nb entier positif
 			tCour = ENT;
@@ -316,6 +324,8 @@ public class PtGen {
 				case VARGLOBALE:
 					po.produire(CONTENUG);
 					po.produire(tabSymb[ident].info);
+					if (desc.getUnite().equals("module"))
+						modifVecteurTrans(TRANSDON);
 					break;
 					
 				case VARLOCALE:
@@ -362,6 +372,8 @@ public class PtGen {
 				case VARGLOBALE:
 					po.produire(AFFECTERG);
 					po.produire(tabSymb[ident].info);
+					if (desc.getUnite().equals("module"))
+						modifVecteurTrans(TRANSDON);
 					break;
 					
 				case VARLOCALE:
@@ -402,6 +414,8 @@ public class PtGen {
 				case VARGLOBALE:
 					po.produire(AFFECTERG);
 					po.produire(tabSymb[identVarPrec].info);
+					if (desc.getUnite().equals("module"))
+						modifVecteurTrans(TRANSDON);
 					break;
 					
 				case VARLOCALE:
@@ -425,6 +439,8 @@ public class PtGen {
 		case 49: // Instruction "si"
 			po.produire(BSIFAUX);
 			po.produire(0);
+			if (desc.getUnite().equals("module"))
+				modifVecteurTrans(TRANSCODE);
 			pileRep.empiler(po.getIpo());
 			break;
 
@@ -432,6 +448,8 @@ public class PtGen {
 			po.produire(BINCOND);
 			po.produire(0);
 			po.modifier(pileRep.depiler(), po.getIpo() + 1);
+			if (desc.getUnite().equals("module"))
+				modifVecteurTrans(TRANSCODE);
 			pileRep.empiler(po.getIpo());
 			break;
 
@@ -456,6 +474,8 @@ public class PtGen {
 			po.produire(BINCOND);
 			po.produire(bincond + 1);
 			po.modifier(bsifaux, po.getIpo() + 1);
+			if (desc.getUnite().equals("module"))
+				modifVecteurTrans(TRANSCODE);
 			break;
 
 		case 55: // Instruction "cond", permet de delimiter la fin du case dans pileRep
@@ -467,11 +487,13 @@ public class PtGen {
 			po.produire(BINCOND);
 			po.produire(0);
 			po.modifier(bsifaux, po.getIpo() + 1);
+			if (desc.getUnite().equals("module"))
+				modifVecteurTrans(TRANSCODE);
 			pileRep.empiler(po.getIpo());
 			break;
 
 		case 57: // Instruction "cond"
-			while ((bincond = pileRep.depiler()) != 0)
+			while ((bincond = pileRep.depiler()) != 0) 
 				po.modifier(bincond, po.getIpo() + 1);
 			break;
 			
@@ -516,13 +538,20 @@ public class PtGen {
 				tabSymb[i].code = -1;
 			break;
 
-		case 70: // 
-			po.produire(BINCOND);
-			po.produire(0);
-			pileRep.empiler(po.getIpo());
+		case 70: // On place le bincond vers le debut du programme que si de l unite est "programme"
+			if (desc.getUnite().equals("programme")) {
+				po.produire(BINCOND);
+				po.produire(0);
+				pileRep.empiler(po.getIpo());
+			}
 			break;
 			
-		case 71: // 
+		case 71: // On met a jour le bincond vers le debut du programme que si de l unite est "programme"
+			if (desc.getUnite().equals("programme"))
+				po.modifier(pileRep.depiler(), po.getIpo() + 1);
+			break;
+			
+		case 72: // 
 			if ((identParamMod = presentIdent(1)) == 0) UtilLex.messErr("Le parametre modifiable " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 
 			switch (tabSymb[identParamMod].categorie) {
@@ -530,6 +559,9 @@ public class PtGen {
 				case VARGLOBALE:
 					po.produire(EMPILERADG);
 					po.produire(tabSymb[identParamMod].info);
+					
+					if (desc.getUnite().equals("module"))
+						modifVecteurTrans(TRANSDON);
 					break;
 				
 				case VARLOCALE:
@@ -550,12 +582,13 @@ public class PtGen {
 			}
 			break;
 			
-		case 72:
+		case 73:
 			po.produire(APPEL);
 			po.produire(tabSymb[identVarPrec].info);
+			if (tabSymb[identVarPrec+1].categorie == REF)
+				modifVecteurTrans(REFEXT);
 			po.produire(tabSymb[identVarPrec+1].info);
 			break;
-			
 			
 			/****************_ PROGRAMMATION SEPAREE _****************/
 			// Informe que l unite est de type programme
@@ -573,39 +606,87 @@ public class PtGen {
 			break;
 			
 		case 85:
-			desc.setTailleCode(po.getIpo());
+			
 			//tailleGlobaux peu etre différent selon le module, faire desc.set... = indVar apres var ?
 			//l'increm de Def et ref sont faites automatiquement
 			//nbTransExt, utiliser modifVecteurTrans( TRANSDON=1 | TRANSCODE=2 | REFEXT=3 );, mais moi pas comprendre comment
-					/* TRANSDON  : appel a une variable globale de l unite actuelle (pas sur)
+					/* TRANSDON  : appel a une variable globale de l unite interne ou externe au prog (pas sur)
 					 * TRANSCODE : pour les bsifaux/bincond
-					 * REFEXT    : appel d une fonction ou variable globale exterieure à l unite actuelle
+					 * REFEXT    : appel d une fonction à l unite actuelle
 					 */
-			//tabDef a l'air bien chiante
-			//tabRef aussi
 			
-			// Generation du .desc
+			if (desc.getUnite().equals("programme"))
+				po.produire(ARRET);
+			
+			desc.setTailleCode(po.getIpo());
+			
+			po.constGen();
+			po.constObj();
+			afftabSymb();
 			desc.ecrireDesc(UtilLex.nomSource);
+			System.out.println(desc);
 			break;
 			
-		case 86:
-			
+		case 86: // ajout a la tableDef
+			if (desc.presentDef(UtilLex.repId(UtilLex.numId)) == 0) {
+				desc.ajoutDef(UtilLex.repId(UtilLex.numId));
+			} else
+				UtilLex.messErr("La def " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree");
 			break;
-			
-		case 87:
-			
+
+		case 87: // ajout a la tableRef
+			if (desc.presentRef(UtilLex.repId(UtilLex.numId)) == 0) {
+				desc.ajoutRef(UtilLex.repId(UtilLex.numId));
+				placeIdent(UtilLex.numId, PROC, NEUTRE, desc.getNbRef());
+				placeIdent(-1, REF, NEUTRE, nbParamRef);
+				
+				nbParamRef = 0;
+			} else
+				UtilLex.messErr("La ref " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree");
 			break;
-			
+
 		case 88:
-			
+			nbParamRef++;
 			break;
-			
+
 		case 89:
-			
+			nbParamRef++;
 			break;
+
 			
 		case 90:
-			
+
+	    	// Mise a jour de tabDef via tabSymb
+	    	// Pour chaque ligne de tabDef
+	    	for (int i = 1; i <= desc.getNbDef(); i++) {
+
+	    		// Recupere la ligne dans tabSymb
+    			int j = 1;
+    			boolean found = false;
+    			while ((j < it) && (!found)) {
+
+    				// Si on a trouve la procedure definie par def
+    				if ((tabSymb[j].categorie == PROC) && (desc.getDefNomProc(i).equals(UtilLex.repId(tabSymb[j].code)))) {
+
+		    			// Met a jour l'adresse du programme
+    					desc.modifDefAdPo(i, tabSymb[j].info);
+    					desc.modifDefNbParam(i, tabSymb[j+1].info);
+
+		    			// Met a jour le type du tabSymb
+		    			tabSymb[j+1].categorie = DEF;
+
+		    			// Sort de la boucle
+		    			found = true;
+    				}
+
+    				// Sinon incremente
+    				else j++;
+    			}
+
+    			// Si non trouve
+    			if (j == it) UtilLex.messErr("Procedure referencee en def non definie");
+	    	}
+	    	
 			break;
 			
 		case 91:
@@ -614,13 +695,6 @@ public class PtGen {
 			
 		case 92:
 			
-			break;
-			
-		case 255:
-			po.produire(ARRET);
-			po.constGen();
-			po.constObj();
-			afftabSymb();
 			break;
 			
 		default:

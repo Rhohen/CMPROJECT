@@ -111,7 +111,7 @@ public class Descripteur {
 	// ajoutDef: ajoute une procedure de nom IdLu dans tabDef
 	public void ajoutDef(String idLu) { 
 		if (nbDef == Descripteur.MAXDEF)
-			UtilLex.messErr("trop de points d'entr�e");
+			UtilLex.messErr("trop de points d'entree");
 		nbDef += 1;
 		tabDef[nbDef] = new EltDef(idLu, -1, -1);
 	}
@@ -151,7 +151,7 @@ public class Descripteur {
 	// ajoutRef: ajoute une procedure de nom IdLu dans tabRef
 	public void ajoutRef(String idLu) { 
 		if (nbRef == Descripteur.MAXREF)
-			UtilLex.messErr("trop de ref�rences externes");
+			UtilLex.messErr("trop de references externes");
 		nbRef += 1;
 		tabRef[nbRef] = new EltRef(idLu, -1);
 	}

@@ -40,12 +40,12 @@ unite  :  {PtGen.pt(84);}{PtGen.pt(82);} unitprog {PtGen.pt(85);} EOF
 unitprog
   : 'programme' ident ':'  
      declarations  
-     corps {PtGen.pt(255);} { System.out.println("succes, arret de la compilation "); }
+     corps { System.out.println("succes, arret de la compilation "); }
   ;
   
 unitmodule
   : 'module' ident ':' 
-     declarations   
+     declarations {PtGen.pt(90);}
   ;
   
 declarations
@@ -53,14 +53,14 @@ declarations
   ;
   
 partiedef
-  : 'def' ident  (',' ident )* ptvg
+  : 'def' ident {PtGen.pt(86);} (',' ident {PtGen.pt(86);})* ptvg
   ;
   
-partieref: 'ref'  specif (',' specif)* ptvg
+partieref: 'ref' specif {PtGen.pt(87);} (',' specif  {PtGen.pt(87);} )* ptvg
   ;
   
-specif  : ident  ( 'fixe' '(' type  ( ',' type  )* ')' )? 
-                 ( 'mod'  '(' type  ( ',' type  )* ')' )? 
+specif  : ident ( 'fixe' '(' type {PtGen.pt(88);} ( ',' type {PtGen.pt(88);} )* ')' )? 
+                 ( 'mod' '(' type {PtGen.pt(89);} ( ',' type {PtGen.pt(89);} )* ')' )?
   ;
   
 consts  : 'const' ( ident '=' valeur  ptvg {PtGen.pt(1);} )+ 
@@ -73,7 +73,7 @@ type  : 'ent' {PtGen.pt(8);}
   |     'bool' {PtGen.pt(9);}
   ;
   
-decprocs: {PtGen.pt(70);} (decproc ptvg)+ {PtGen.pt(51);}
+decprocs: {PtGen.pt(70);} (decproc ptvg)+ {PtGen.pt(71);}
   ;
   
 decproc :  'proc'  ident {PtGen.pt(65);} parfixe? parmod? {PtGen.pt(68);} consts? vars?  corps {PtGen.pt(69);}
@@ -132,14 +132,14 @@ ecriture: 'ecrire' '(' expression  {PtGen.pt(45);} ( ',' expression  {PtGen.pt(4
 
 affouappel
   : ident {PtGen.pt(47);} ( ':='  expression {PtGen.pt(48);}
-            |   (effixes (effmods)?)? {PtGen.pt(72);}
+            |   (effixes (effmods)?)? {PtGen.pt(73);}
            )
   ;
   
 effixes : '(' (expression  (',' expression  )*)? ')'
   ;
   
-effmods :'(' (ident {PtGen.pt(71);} (',' ident {PtGen.pt(71);} )*)? ')'
+effmods :'(' (ident {PtGen.pt(72);} (',' ident {PtGen.pt(72);} )*)? ')'
   ; 
   
 expression: (exp1) ('ou' {PtGen.pt(19);} exp1 {PtGen.pt(19); PtGen.pt(21);} )*
