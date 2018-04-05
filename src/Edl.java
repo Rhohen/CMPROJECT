@@ -21,6 +21,9 @@ public class Edl {
 	static int ipo, nMod, nbErr;
 	static String nomProg;
 	
+	// descripteur associe a un programme objet
+    private static Descripteur desc;
+    
 	static int[] transDon = new int[MAXMOD+1];
 	static int[] transCode = new int[MAXMOD+1];
 	static int[][] adFinale = new int[MAXMOD+1][MAXDEF+1];
@@ -127,6 +130,8 @@ public class Edl {
 		// TransCode = bsifaux ect
 		// TransDon = varGlob
 		
+
+		desc = new Descripteur();
 		
 		transDon[0] = 0;
 		transCode[0] = 0;
@@ -138,9 +143,7 @@ public class Edl {
 					if (dicoDef[k].nomProc.equals(tabDesc[i].getDefNomProc(j)))
 						erreur(FATALE, tabDesc[i].getDefNomProc(j) + " est déjà définie.");
 				tabDesc[i].modifDefAdPo(j, transCode[i]);
-				dicoDef[nbDef].nomProc = tabDesc[i].getDefNomProc(j);
-				dicoDef[nbDef].adPo = tabDesc[i].getDefAdPo(j);
-				dicoDef[nbDef].nbParam = tabDesc[i].getDefNbParam(j);
+				dicoDef[nbDef] = desc.new EltDef(tabDesc[i].getDefNomProc(j), tabDesc[i].getDefAdPo(j), tabDesc[i].getDefNbParam(j));
 				nbDef++;
 			}
 		}
@@ -154,10 +157,10 @@ public class Edl {
 			System.out.println("[" + i + "]" + " => " + transCode[i]);
 
 		System.out.println("\n Table DicoDef:");
-		for (int i = 1; i <= flagDicoDef; i++)
+		for (int i = 0; i < nbDef; i++)
 			System.out.println("[" + i + "]" + " => (" + dicoDef[i].nomProc + ", " + dicoDef[i].adPo + ", " + dicoDef[i].nbParam + ")");
 
-		/*
+		
         for (int i=0; i<=nMod; i++) { // Remplissage de adFinale
             for (int j=1; j<=tabDesc[i].getNbRef(); j++) {
             	int k = 0;
@@ -168,7 +171,7 @@ public class Edl {
                     }
                 if (k >= nbDef) erreur(FATALE, "référence introuvable : " + tabDesc[i].getRefNomProc(j));
             }
-        }*/
+        }
 		
 		
 		if (nbErr > 0) {
@@ -178,7 +181,7 @@ public class Edl {
 		
 		// Phase 2 de l'edition de liens
 		// -----------------------------
-		printTables();
+		//printTables();
 		
 		constMap();				// a completer
 		System.out.println("Edition de liens terminee");
