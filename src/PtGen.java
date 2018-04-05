@@ -1,6 +1,6 @@
 /*********************************************************************************
  * VARIABLES ET METHODES FOURNIES PAR LA CLASSE UtilLex (cf libclass)            *
- *       complement Ã  l'ANALYSEUR LEXICAL produit par ANTLR                      *
+ *       complement Ã  l'ANALYSEUR LEXICAL produit par ANTLR                      *
  *                                                                               *
  *                                                                               *
  *   nom du programme compile, sans suffixe : String UtilLex.nomSource           *
@@ -482,7 +482,7 @@ public class PtGen {
 			pileRep.empiler(0);
 			break;
 
-		case 56: // Instruction "cond"
+		case 56: // Instruction "cond" pour aut
 			bsifaux = pileRep.depiler();
 			po.produire(BINCOND);
 			po.produire(0);
@@ -492,13 +492,13 @@ public class PtGen {
 			pileRep.empiler(po.getIpo());
 			break;
 
-		case 57: // Instruction "cond"
+		case 57: // Instruction "cond" pour fcond
 			while ((bincond = pileRep.depiler()) != 0) 
 				po.modifier(bincond, po.getIpo() + 1);
 			break;
 			
 			/****************_ PROCEDURE _****************/
-		case 65: // 
+		case 65: // Ajout d'une procedure
 			if (presentIdent(1) == 0) {
 				placeIdent(UtilLex.numId, PROC, NEUTRE, po.getIpo() + 1);
 				placeIdent(-1, PRIVEE, NEUTRE, 0);
@@ -507,26 +507,26 @@ public class PtGen {
 			} else UtilLex.messErr("La procedure " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree.");
 			break;
 			
-		case 66: // 
+		case 66: // ajout d'un paramfixe
 			if (presentIdent(bc) == 0) {
 				placeIdent(UtilLex.numId, PARAMFIXE, tCour, nbParamProc);
 				nbParamProc++;
 			} else UtilLex.messErr("Le parametre fixe " + UtilLex.repId(UtilLex.numId) + " a deja ete declare.");
 			break;
 			
-		case 67: // 
+		case 67: // ajout d'un parammod
 			if (presentIdent(bc) == 0) {
 				placeIdent(UtilLex.numId, PARAMMOD, tCour, nbParamProc);
 				nbParamProc++;
 			} else UtilLex.messErr("Le parametre modifiable " + UtilLex.repId(UtilLex.numId) + " a deja ete declare.");
 			break;
 			
-		case 68: // 
+		case 68: // Fin de declaration des parametres, on saute 2 lignes pour les liens des données
 			tabSymb[bc-1].info = nbParamProc;
 			indVar = nbParamProc + 2;
 			break;
 			
-		case 69: // 
+		case 69: // retour d'une fonction
 			po.produire(RETOUR);
 			po.produire(nbParamProc);
 
@@ -551,7 +551,7 @@ public class PtGen {
 				po.modifier(pileRep.depiler(), po.getIpo() + 1);
 			break;
 			
-		case 72: // 
+		case 72: // passage des parametres d'une fonction
 			if ((identParamMod = presentIdent(1)) == 0) UtilLex.messErr("Le parametre modifiable " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
 
 			switch (tabSymb[identParamMod].categorie) {
@@ -582,7 +582,7 @@ public class PtGen {
 			}
 			break;
 			
-		case 73:
+		case 73: // appel d'une fonction avec l'ipo du debut de la fonction avec son nombre de parametres
 			po.produire(APPEL);
 			po.produire(tabSymb[identVarPrec].info);
 			if (tabSymb[identVarPrec+1].categorie == REF)
@@ -605,7 +605,7 @@ public class PtGen {
 			desc = new Descripteur();
 			break;
 			
-		case 85:
+		case 85: // 
 			if (desc.getUnite().equals("programme"))
 				po.produire(ARRET);
 			
@@ -644,7 +644,6 @@ public class PtGen {
 			break;
 
 		case 89:
-			desc.ecrireDesc(UtilLex.nomSource);
 			nbParamRef++;
 			break;
 

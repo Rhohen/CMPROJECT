@@ -73,7 +73,6 @@ public class Edl {
 		}
 	}
 
-	
 	static void constMap() {
 		// f2 = fichier executable .map construit
 		OutputStream f2 = Ecriture.ouvrir(nomProg + ".map");
@@ -83,65 +82,45 @@ public class Edl {
 		// pour construire le code concatene de toutes les unites
 		int[] po = new int[(nMod + 1) * MAXOBJ + 1];
 
-        ipo=1;
-        
-        for (int i=0; i<=nMod; i++) {
-            InputStream unite = Lecture.ouvrir(nomUnites[i] + ".obj");
-            if (unite == null) erreur(FATALE, nomUnites[i] + ".obj illisible");
-            int[] vecteurTranslation=new int[MAXOBJ+1];
-            for (int j=1; j<=MAXOBJ; j++) vecteurTranslation[j]=-1;
-            
-            for (int j=0; j<tabDesc[i].getNbTransExt(); j++) {
-                int at = Lecture.lireInt(unite) + transCode[i];
-                vecteurTranslation[at] = Lecture.lireIntln(unite);
-            }
-           
-            for (int j=0; j<tabDesc[i].getTailleCode(); j++) {
-                po[ipo] = Lecture.lireIntln(unite);
-                switch (vecteurTranslation[ipo]) {
-                    case TRANSDON: po[ipo] += transDon[i]; break;
-                    case TRANSCODE: po[ipo] += transCode[i]; break;
-                    case REFEXT: po[ipo] = adFinale[i][po[ipo]]; break;
-                }
-                ipo++;
-            }
-            Lecture.fermer(unite);
-        } 
-        ipo--; 
-        po[2] = transDon[nMod] + tabDesc[nMod].getTailleGlobaux(); 
-        for (int i=1; i<=ipo; i++) Ecriture.ecrireStringln(f2, ""+po[i]); 
+		ipo = 1;
+		for (int i = 0; i <= nMod; i++) {
+			InputStream unite = Lecture.ouvrir(nomUnites[i] + ".obj");
+			if (unite == null)
+				erreur(FATALE, nomUnites[i] + ".obj illisible");
+			int[] vecteurTranslation = new int[MAXOBJ + 1];
+			for (int j = 1; j <= MAXOBJ; j++)
+				vecteurTranslation[j] = -1;
+
+			for (int j = 0; j < tabDesc[i].getNbTransExt(); j++) {
+				int at = Lecture.lireInt(unite) + transCode[i];
+				vecteurTranslation[at] = Lecture.lireIntln(unite);
+			}
+
+			for (int j = 0; j < tabDesc[i].getTailleCode(); j++) {
+				po[ipo] = Lecture.lireIntln(unite);
+				switch (vecteurTranslation[ipo]) {
+				case TRANSDON:
+					po[ipo] += transDon[i];
+					break;
+				case TRANSCODE:
+					po[ipo] += transCode[i];
+					break;
+				case REFEXT:
+					po[ipo] = adFinale[i][po[ipo]];
+					break;
+				}
+				ipo++;
+			}
+			Lecture.fermer(unite);
+		}
+		ipo--;
+		po[2] = transDon[nMod] + tabDesc[nMod].getTailleGlobaux();
+		for (int i = 1; i <= ipo; i++)
+			Ecriture.ecrireStringln(f2, "" + po[i]);
 		
 		Ecriture.fermer(f2);
 		// cr�ation du fichier en mnemonique correspondant
 		Mnemo.creerFichier(ipo, po, nomProg + ".ima");
-	}
-
-	static void afficherTables() {
-
-		System.out.println("\n Table TransDon:");
-		for (int i = 0; i <= nMod; i++)
-			System.out.println("[" + i + "]" + " => " + transDon[i]);
-
-		System.out.println("\n Table TransCode:");
-		for (int i = 0; i <= nMod; i++)
-			System.out.println("[" + i + "]" + " => " + transCode[i]);
-
-		System.out.println("\n Table DicoDef:");
-		for (int i = 0; i < nbDef; i++)
-			System.out.println("[" + i + "]" + " => (" + dicoDef[i].nomProc + ", " + dicoDef[i].adPo + ", " + dicoDef[i].nbParam + ")");
-
-		System.out.println("\n Table AdFinale:");
-		for (int y = 0; y <= nMod; y++) {
-			System.out.print("[" + y + "]" + " => ");
-
-			for (int x = 1; x <= tabDesc[y].getNbRef(); x++)
-				System.out.print("[" + adFinale[y][x] + "] ");
-
-			if (tabDesc[y].getNbRef() == 0)
-				System.out.print("Pas de reference");
-
-			System.out.println("");
-		}
 	}
 	
 	public static void main(String argv[]) {
@@ -161,40 +140,42 @@ public class Edl {
 		
 
 		desc = new Descripteur();
-		
+
 		transDon[0] = 0;
 		transCode[0] = 0;
-		for (int i = 1; i <= nMod; i++) { // Remplissage de transDon, transCode et dicoDef
-			transDon[i] = transDon[i - 1] + tabDesc[i - 1].getTailleGlobaux();
-			transCode[i] = transCode[i - 1] + tabDesc[i - 1].getTailleCode();
-			for (int j = 1; j <= tabDesc[i].getNbDef(); j++) { // Union des tabDef
+		for (int unite = 1; unite <= nMod; unite++) { // Remplissage de transDon, transCode et dicoDef
+			transDon[unite] = transDon[unite - 1] + tabDesc[unite - 1].getTailleGlobaux();
+			transCode[unite] = transCode[unite - 1] + tabDesc[unite - 1].getTailleCode();
+			for (int i = 1; i <= tabDesc[unite].getNbDef(); i++) { // Union des tabDef
 				for (int k = 0; k < nbDef; k++) // On parcourt les def déjà ajoutées
-					if (dicoDef[k].nomProc.equals(tabDesc[i].getDefNomProc(j)))
-						erreur(FATALE, tabDesc[i].getDefNomProc(j) + " est déjà définie.");
-				dicoDef[nbDef] = desc.new EltDef(tabDesc[i].getDefNomProc(j), tabDesc[i].getDefAdPo(j) + transCode[i], tabDesc[i].getDefNbParam(j));
+					if (dicoDef[k].nomProc.equals(tabDesc[unite].getDefNomProc(i)))
+						erreur(NONFATALE, tabDesc[unite].getDefNomProc(i) + " est déjà définie.");
+				dicoDef[nbDef] = desc.new EltDef(tabDesc[unite].getDefNomProc(i), tabDesc[unite].getDefAdPo(i) + transCode[unite], tabDesc[unite].getDefNbParam(i));
 				nbDef++;
 			}
 		}
-		String messageErreur = "";
-		System.out.println(tabDesc[0].getNbRef());
-        for (int i=0; i<=nMod; i++) { // Remplissage de adFinale
-            for (int j=1; j<=tabDesc[i].getNbRef(); j++) {
-            	int k = 0;
-                for (k=0; k<nbDef; k++) // On cherche la ref dans dicoDef
-                    if (!dicoDef[k].nomProc.equals(tabDesc[i].getRefNomProc(j))){
-                    	messageErreur = "reference introuvable : " + tabDesc[i].getRefNomProc(j);
-                    } else if (!(dicoDef[k].nbParam == tabDesc[i].getRefNbParam(j))) {
-                    	messageErreur = "nombre de params incorrect pour : " + tabDesc[i].getRefNomProc(j);
-                    } else {
-                        adFinale[i][j] = dicoDef[k].adPo;
-                        break;
-                    }
-                if (k >= nbDef) erreur(FATALE, messageErreur);
-            }
-        }
-        
-        afficherTables();
 		
+		String messageErreur = "";
+		int erreurType = FATALE;
+		for (int unite = 0; unite <= nMod; unite++) { // Remplissage de adFinale
+			for (int i = 1; i <= tabDesc[unite].getNbRef(); i++) {
+				int j = 0;
+				for (j = 0; j < nbDef; j++) // On cherche la ref dans dicoDef
+					if (!dicoDef[j].nomProc.equals(tabDesc[unite].getRefNomProc(i))) {
+						messageErreur = "reference introuvable : " + tabDesc[unite].getRefNomProc(i);
+						erreurType = NONFATALE;
+					} else if (!(dicoDef[j].nbParam == tabDesc[unite].getRefNbParam(i))) {
+						messageErreur = "nombre de params incorrect pour : " + tabDesc[unite].getRefNomProc(i);
+						erreurType = FATALE;
+					} else {
+						adFinale[unite][i] = dicoDef[j].adPo;
+						break;
+					}
+				if (j >= nbDef)
+					erreur(erreurType, messageErreur);
+			}
+		}
+
 		if (nbErr > 0) {
 			System.out.println("programme executable non produit");
 			System.exit(1);
@@ -202,7 +183,6 @@ public class Edl {
 		
 		// Phase 2 de l'edition de liens
 		// -----------------------------
-		
 		
 		constMap();
 		System.out.println("Edition de liens terminee");
