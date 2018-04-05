@@ -8,5 +8,5 @@ nbRef          2
 nbTransExt     3
 tabDef          
 tabRef          
-    init  -1
-    ajout  -1
+    init  1
+    ajout  1
