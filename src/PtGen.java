@@ -19,9 +19,6 @@
  *     void afftabSymb()  affiche la table des symboles                          *
  *********************************************************************************/
 
-
-import java.io.*;
-
 // classe de mise en oeuvre du compilateur
 // =======================================
 // (verifications semantiques + production du code objet)
@@ -161,18 +158,16 @@ public class PtGen {
 
 	// initialisations A COMPLETER SI BESOIN
 	// -------------------------------------
-    private static int ident; // Identifiant
-    private static int typeVarPrec; // Type de la variable precedente
-    private static int catVarPrec; // Categorie de la variable precedente
-    private static int identVarPrec; // Categorie de la variable precedente
-    private static int bsifaux;
-    private static int bincond;
-    private static int indVar; // iterateur pour remplir tabSymb avec les var locales et globales
-    private static int nbParamProc; // nombre de parametre de la procedure actuelle
-    private static int identParamMod;
-	
+	private static int ident; // Identifiant
+	private static int typeVarPrec; // Type de la variable precedente
+	private static int catVarPrec; // Categorie de la variable precedente
+	private static int identVarPrec; // Categorie de la variable precedente
+	private static int bsifaux;
+	private static int bincond;
+	private static int indVar; // iterateur pour remplir tabSymb avec les var locales et globales
+	private static int nbParamProc; // nombre de parametre de la procedure actuelle
+	private static int identParamMod;
 	private static int nbParamRef;
-	private static int idProcDef;
 
 	public static void initialisations() {
 	
@@ -648,14 +643,15 @@ public class PtGen {
 			break;
 
 		case 90:
+			int j;
+			boolean trouve;
 	    	// Mise a jour de tabDef via tabSymb
-	    	// Pour chaque ligne de tabDef
 	    	for (int i = 1; i <= desc.getNbDef(); i++) {
 	    		
 	    		// Recupere la ligne dans tabSymb
-    			int j = 1;
-    			boolean found = false;
-    			while ((j < it) && (!found)) {
+    			j = 1;
+    			trouve = false;
+    			while ((j < it) && (!trouve)) {
 
     				// Si on a trouve la procedure definie par def
     				if ((tabSymb[j].categorie == PROC) &&
@@ -669,11 +665,8 @@ public class PtGen {
 		    			tabSymb[j+1].categorie = DEF;
 
 		    			// Sort de la boucle
-		    			found = true;
-    				}
-
-    				// Sinon incremente
-    				else j++;
+		    			trouve = true;
+    				} else j++;
     			}
 
     			// Si non trouve

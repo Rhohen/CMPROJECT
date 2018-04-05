@@ -6,6 +6,7 @@ public class Edl {
 	static final int MAXMOD = 5, MAXOBJ = 1000;
 	// nombres max de references externes (REF) et de points d'entree (DEF)
 	// pour une unite
+	@SuppressWarnings("unused")
 	private static final int MAXREF = 10, MAXDEF = 10;
 	
 	// typologie des erreurs
