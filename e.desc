@@ -1,12 +1,13 @@
 FICHIER e.desc :
 
 unite          module
-tailleCode     25
-tailleGlobaux  1
-nbDef          1
-nbRef          1
-nbTransExt     6
+tailleCode     85
+tailleGlobaux  3
+nbDef          3
+nbRef          0
+nbTransExt     21
 tabDef          
-    ajout  1  1
+    init2  1  0
+    ajout2  7  1
+    ecr2  63  0
 tabRef          
-    init  1

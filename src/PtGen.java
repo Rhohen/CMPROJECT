@@ -99,7 +99,7 @@ public class PtGen {
      
     // autres variables fournies
     // -------------------------
-    public static String trinome="CroqGiraultJouin"; // MERCI de renseigner ici un nom pour le trinome, constitue de exclusivement de lettres
+    public static String trinome="CroqGiraultJouin"; // Nombre de case : 57 
     
     private static int tCour; // type de l'expression compilee
     private static int vCour; // valeur de l'expression compilee le cas echeant
@@ -162,12 +162,12 @@ public class PtGen {
 	private static int typeVarPrec; // Type de la variable precedente
 	private static int catVarPrec; // Categorie de la variable precedente
 	private static int identVarPrec; // Categorie de la variable precedente
-	private static int bsifaux;
-	private static int bincond;
-	private static int indVar; // iterateur pour remplir tabSymb avec les var locales et globales
-	private static int nbParamProc; // nombre de parametre de la procedure actuelle
-	private static int identParamMod;
-	private static int nbParamRef;
+	private static int bsifaux; // Permet de stocker temporairement la position ipo d un bsifaux
+	private static int bincond; // Permet de stocker temporairement la position ipo d un bincond
+	private static int indVar; // Iterateur pour remplir tabSymb avec les var locales et globales
+	private static int nbParamProc; // Nombre de parametre de la procedure actuelle
+	private static int identParamMod; // Identifiant du parametre modifiable
+	private static int nbParamRef; // Nombre de parametre de la procedure referencee
 
 	public static void initialisations() {
 	
@@ -193,26 +193,26 @@ public class PtGen {
 	// code des points de generation A COMPLETER
 	// -----------------------------------------
 	public static void pt(int numGen) {
-		//	Uniquement pour simplifier le debuggage 
-		System.out.println("numGen: " + numGen + "\n");
-
+		// Uniquement pour simplifier le debuggage 
+		// System.out.println("numGen: " + numGen + "\n");
+			
 		switch (numGen) {
 		case 0:
 			initialisations();
 			indVar = 0;
 			break;
-		case 1: // ajout d'une constante
+		case 1: // Ajout d'une constante
 			if (presentIdent(1) == 0) placeIdent(UtilLex.numId, CONSTANTE, tCour, vCour);
 			else UtilLex.messErr("La constante " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree.");
 			break;
-		case 2: // déclaration d'une variable
+		case 2: // Déclaration d'une variable
 			if (presentIdent(bc) == 0) {
 				if (bc > 1) placeIdent(UtilLex.numId, VARLOCALE, tCour, indVar);
 				else placeIdent(UtilLex.numId, VARGLOBALE, tCour, indVar);
 				indVar++;
     		} else UtilLex.messErr("La variable " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree.");
 			break;
-		case 3: // reservation des variables globales et locales
+		case 3: // Reservation des variables globales
 			if (desc.getUnite().equals("programme")) {
 				po.produire(RESERVER);
 				if  (bc > 1)
@@ -319,8 +319,7 @@ public class PtGen {
 				case VARGLOBALE:
 					po.produire(CONTENUG);
 					po.produire(tabSymb[ident].info);
-					if (desc.getUnite().equals("module"))
-						modifVecteurTrans(TRANSDON);
+					modifVecteurTrans(TRANSDON);
 					break;
 					
 				case VARLOCALE:
@@ -342,7 +341,7 @@ public class PtGen {
 					break;
 					
 				default:
-					System.out.println("Catégorie de l'ident non répertoriée.");
+					UtilLex.messErr("Categorie de l ident non repertoriee ou variable non modifiable : " + tabSymb[ident].categorie);
 					break;
 			}
 			break;
@@ -350,7 +349,8 @@ public class PtGen {
 			/****************_ CONDITIONS/ECRITURE/LECTURE _****************/
 		case 45: // Ecriture
 			if (tCour == ENT) po.produire(ECRENT); 
-			else po.produire(ECRBOOL);
+			else if (tCour == BOOL) po.produire(ECRBOOL);
+			else UtilLex.messErr("Le type courant n existe pas.");
 			break;
 			
 		case 46: // Lecture
@@ -360,16 +360,15 @@ public class PtGen {
 			tCour = tabSymb[ident].type;
 
 			if (tCour == ENT) po.produire(LIRENT);
-			else po.produire(LIREBOOL);
+			else if (tCour == BOOL) po.produire(LIREBOOL);
+			else UtilLex.messErr("Le type courant n existe pas.");
 
 			switch (tabSymb[ident].categorie) {
-			
 				case VARGLOBALE:
 					po.produire(AFFECTERG);
 					po.produire(tabSymb[ident].info);
-					if (desc.getUnite().equals("module"))
-						modifVecteurTrans(TRANSDON);
-					break;
+					modifVecteurTrans(TRANSDON);
+				break;
 					
 				case VARLOCALE:
 					po.produire(AFFECTERL);
@@ -384,7 +383,7 @@ public class PtGen {
 				break;
 					
 				default:
-					System.out.println("Catégorie de l'ident non répertoriée.");
+					UtilLex.messErr("Categorie de l ident non repertoriee ou variable non modifiable : " + tabSymb[ident].categorie);
 					break;
 			}
 			break;
@@ -392,8 +391,8 @@ public class PtGen {
 		case 47: // Affectation, sauvegarde des informations de la variable recevant la valeur
 			if ((identVarPrec = presentIdent(1)) == 0)
 				UtilLex.messErr("La variable/constante " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
-			if (tabSymb[identVarPrec].categorie == CONSTANTE)
-				UtilLex.messErr("La constante " + UtilLex.repId(UtilLex.numId) + " ne peut pas etre modifiee.");
+			if (tabSymb[identVarPrec].categorie == CONSTANTE || (tabSymb[identVarPrec].categorie == PARAMFIXE))
+				UtilLex.messErr("La constante/paramfixe " + UtilLex.repId(UtilLex.numId) + " ne peut pas etre modifiee.");
 
 			tCour = tabSymb[identVarPrec].type;
 			typeVarPrec = tabSymb[identVarPrec].type;
@@ -402,15 +401,14 @@ public class PtGen {
 
 		case 48: // Affectation des valeurs a la variable precedemment enregistree
 			if (typeVarPrec == ENT) verifEnt();
-			else verifBool();
-
+			else if (typeVarPrec == BOOL) verifBool();
+			else UtilLex.messErr("Le type de la variable precedente n existe pas.");
+				
 			switch (catVarPrec) {
-			
 				case VARGLOBALE:
 					po.produire(AFFECTERG);
 					po.produire(tabSymb[identVarPrec].info);
-					if (desc.getUnite().equals("module"))
-						modifVecteurTrans(TRANSDON);
+					modifVecteurTrans(TRANSDON);
 					break;
 					
 				case VARLOCALE:
@@ -426,25 +424,25 @@ public class PtGen {
 					break;
 					
 				default:
-					System.out.println("Catégorie de l'ident non répertoriée.");
+					UtilLex.messErr("Categorie de l ident non repertoriee ou variable non modifiable : " + catVarPrec);
 					break;
 			}
 			break;
 
 		case 49: // Instruction "si"
+			verifBool();
 			po.produire(BSIFAUX);
 			po.produire(0);
-			if (desc.getUnite().equals("module"))
-				modifVecteurTrans(TRANSCODE);
+			modifVecteurTrans(TRANSCODE);
 			pileRep.empiler(po.getIpo());
 			break;
 
 		case 50: // Instruction "si", aussi utilisee dans "cond"
+			bsifaux = pileRep.depiler();
 			po.produire(BINCOND);
 			po.produire(0);
-			po.modifier(pileRep.depiler(), po.getIpo() + 1);
-			if (desc.getUnite().equals("module"))
-				modifVecteurTrans(TRANSCODE);
+			po.modifier(bsifaux, po.getIpo() + 1); // Met a jour le bsifaux precedent
+			modifVecteurTrans(TRANSCODE);
 			pileRep.empiler(po.getIpo());
 			break;
 
@@ -469,25 +467,14 @@ public class PtGen {
 			po.produire(BINCOND);
 			po.produire(bincond + 1);
 			po.modifier(bsifaux, po.getIpo() + 1);
-			if (desc.getUnite().equals("module"))
-				modifVecteurTrans(TRANSCODE);
+			modifVecteurTrans(TRANSCODE);
 			break;
 
 		case 55: // Instruction "cond", permet de delimiter la fin du case dans pileRep
 			pileRep.empiler(0);
 			break;
 
-		case 56: // Instruction "cond" pour aut
-			bsifaux = pileRep.depiler();
-			po.produire(BINCOND);
-			po.produire(0);
-			po.modifier(bsifaux, po.getIpo() + 1);
-			if (desc.getUnite().equals("module"))
-				modifVecteurTrans(TRANSCODE);
-			pileRep.empiler(po.getIpo());
-			break;
-
-		case 57: // Instruction "cond" pour fcond
+		case 57: // Instruction "cond" pour fcond, ainsi que le dernier bsifaux si il n y a pas eu de aut
 			while ((bincond = pileRep.depiler()) != 0) 
 				po.modifier(bincond, po.getIpo() + 1);
 			break;
@@ -509,14 +496,14 @@ public class PtGen {
 			} else UtilLex.messErr("Le parametre fixe " + UtilLex.repId(UtilLex.numId) + " a deja ete declare.");
 			break;
 			
-		case 67: // ajout d'un parammod
+		case 67: // ajout d un parammod
 			if (presentIdent(bc) == 0) {
 				placeIdent(UtilLex.numId, PARAMMOD, tCour, nbParamProc);
 				nbParamProc++;
 			} else UtilLex.messErr("Le parametre modifiable " + UtilLex.repId(UtilLex.numId) + " a deja ete declare.");
 			break;
 			
-		case 68: // Fin de declaration des parametres, on saute 2 lignes pour les liens des données
+		case 68: // Fin de declaration des parametres, on saute 2 lignes pour les liens des donnees
 			tabSymb[bc-1].info = nbParamProc;
 			indVar = nbParamProc + 2;
 			break;
@@ -547,16 +534,13 @@ public class PtGen {
 			break;
 			
 		case 72: // passage des parametres d'une fonction
-			if ((identParamMod = presentIdent(1)) == 0) UtilLex.messErr("Le parametre modifiable " + UtilLex.repId(UtilLex.numId) + " n'existe pas.");
-
-			switch (tabSymb[identParamMod].categorie) {
+			if ((identParamMod = presentIdent(1)) == 0) UtilLex.messErr("Le parametre modifiable " + UtilLex.repId(UtilLex.numId) + " n existe pas.");
 			
+			switch (tabSymb[identParamMod].categorie) {
 				case VARGLOBALE:
 					po.produire(EMPILERADG);
 					po.produire(tabSymb[identParamMod].info);
-					
-					if (desc.getUnite().equals("module"))
-						modifVecteurTrans(TRANSDON);
+					modifVecteurTrans(TRANSDON);
 					break;
 				
 				case VARLOCALE:
@@ -572,15 +556,15 @@ public class PtGen {
 					break;
 					
 				default:
-					System.out.println("Catégorie de l'ident non répertoriée.");
+					UtilLex.messErr("Categorie de l ident non repertoriee ou variable non modifiable : " + tabSymb[identParamMod].categorie);
 					break;
 			}
 			break;
 			
-		case 73: // appel d'une fonction avec l'ipo du debut de la fonction avec son nombre de parametres
+		case 73: // Appel d'une fonction avec l ipo du debut de la fonction suivi de son nombre de parametre
 			po.produire(APPEL);
 			po.produire(tabSymb[identVarPrec].info);
-			if (tabSymb[identVarPrec+1].categorie == REF)
+			if (tabSymb[identVarPrec+1].categorie == REF) // Si appel a procedure exterieure, alors on ajoute refext au vecteur de translation
 				modifVecteurTrans(REFEXT);
 			po.produire(tabSymb[identVarPrec+1].info);
 			break;
@@ -600,7 +584,7 @@ public class PtGen {
 			desc = new Descripteur();
 			break;
 			
-		case 85: // 
+		case 85: // Produit l arret uniquement pour le programme, construit le .gen et .obj des unites correspondantes
 			if (desc.getUnite().equals("programme"))
 				po.produire(ARRET);
 			
@@ -610,28 +594,24 @@ public class PtGen {
 			po.constObj();
 			afftabSymb();
 			desc.ecrireDesc(UtilLex.nomSource);
-			System.out.println(desc);
 			break;
 			
-		case 86: // ajout a la tableDef
-			if (desc.presentDef(UtilLex.repId(UtilLex.numId)) == 0) {
+		case 86: // Ajout a la tableDef
+			if (desc.presentDef(UtilLex.repId(UtilLex.numId)) == 0)
 				desc.ajoutDef(UtilLex.repId(UtilLex.numId));
-			} else
+			else
 				UtilLex.messErr("La def " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree");
 			break;
 
-		case 87: // ajout a la tableRef
+		case 87: // Ajout a la tableRef
 			if (desc.presentRef(UtilLex.repId(UtilLex.numId)) == 0) {
 				desc.ajoutRef(UtilLex.repId(UtilLex.numId));
 				desc.modifRefNbParam(desc.presentRef(UtilLex.repId(UtilLex.numId)), nbParamRef);
 				placeIdent(UtilLex.numId, PROC, NEUTRE, desc.getNbRef());
 				placeIdent(-1, REF, NEUTRE, nbParamRef);
-				
-				nbParamRef = 0;
 			} else
 				UtilLex.messErr("La ref " + UtilLex.repId(UtilLex.numId) + " a deja ete declaree");
 
-			
 			break;
 
 		case 88:
@@ -647,32 +627,28 @@ public class PtGen {
 			boolean trouve;
 	    	// Mise a jour de tabDef via tabSymb
 	    	for (int i = 1; i <= desc.getNbDef(); i++) {
-	    		
-	    		// Recupere la ligne dans tabSymb
     			j = 1;
     			trouve = false;
     			while ((j < it) && (!trouve)) {
 
-    				// Si on a trouve la procedure definie par def
+    				// Si la procedure definie par def existe, alors
     				if ((tabSymb[j].categorie == PROC) &&
     					(desc.getDefNomProc(i).equals(UtilLex.repId(tabSymb[j].code)))) {
 
-		    			// Met a jour l'adresse du programme
+		    			// On met a jour l adresse du debut de l unite
     					desc.modifDefAdPo(i, tabSymb[j].info);
     					desc.modifDefNbParam(i, tabSymb[j+1].info);
     				
-		    			// Met a jour le type du tabSymb
+		    			// Puis on met a jour son type dans tabSymb
 		    			tabSymb[j+1].categorie = DEF;
-
-		    			// Sort de la boucle
+		    			
 		    			trouve = true;
     				} else j++;
     			}
 
-    			// Si non trouve
+    			// Si on a pas trouve, alors erreur
     			if (j == it) UtilLex.messErr("Procedure referencee en def non definie");
 	    	}
-	    	
 			break;
 			
 		case 91:

@@ -1,11 +1,13 @@
 FICHIER z.desc :
 
 unite          module
-tailleCode     7
-tailleGlobaux  0
-nbDef          1
+tailleCode     85
+tailleGlobaux  3
+nbDef          3
 nbRef          0
-nbTransExt     0
+nbTransExt     21
 tabDef          
-    init  1  1
+    init1  1  0
+    ajout1  7  1
+    ecr1  63  0
 tabRef          

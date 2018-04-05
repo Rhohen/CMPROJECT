@@ -101,7 +101,7 @@ public class Descripteur {
 	
 	// presentDef: recherche le nom d'une procedure dans tabDef
 	//		rend son indice si present, 0 sinon
-	public  int presentDef(String idLu) { 
+	public int presentDef(String idLu) { 
 		int i = nbDef;
 		while (i > 0 && !tabDef[i].nomProc.equals(idLu))
 			i--;
